@@ -1,0 +1,4 @@
+{
+  "app.components.NotFoundPage.header": "This is NotFoundPage component!",
+  "app.containers.Home.header": "This is Home container !"
+}
