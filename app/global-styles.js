@@ -33,12 +33,13 @@ injectGlobal`
   }
 
   .gallery-wrap .img-small-wrap .item-gallery {
-    width: 60px;
-    height: 60px;
+    width: 100px;
+    height: 100px;
     border: 1px solid #ddd;
-    margin: 7px 2px;
+    margin: auto 5px;
     display: inline-block;
     overflow: hidden;
+    padding: 10px;
   }
 
   .gallery-wrap .img-small-wrap {

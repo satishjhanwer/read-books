@@ -8,6 +8,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
+import { Link } from 'react-router-dom';
 
 import { injectIntl, intlShape } from 'react-intl';
 import { createStructuredSelector } from 'reselect';
@@ -61,7 +62,10 @@ export class BookDetails extends React.Component {
                   <h3 className="title mb-3">{bookObj.title}</h3>
                   <p className="price-detail-wrap">
                     <span>
-                      {formatMessage(messages.by)} {bookObj.author.name}
+                      {formatMessage(messages.by)}
+                      <Link to={`/author/${bookObj.author.id}`}>
+                        {bookObj.author.name}
+                      </Link>
                     </span>
                   </p>
                   <dl className="item-property">

@@ -18,6 +18,7 @@ import { Container, Row, Col } from 'reactstrap';
 
 import Navigation from 'components/Navigation/Loadable';
 import HomePage from 'containers/Home/Loadable';
+import AuthorDetailPage from 'containers/AuthorDetails/Loadable';
 import BookDetailPage from 'containers/BookDetails/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 
@@ -35,6 +36,7 @@ export default function App() {
             <Switch>
               <Route exact path="/" component={HomePage} />
               <Route path="/book/:id" component={BookDetailPage} />
+              <Route path="/author/:id" component={AuthorDetailPage} />
               <Route component={NotFoundPage} />
             </Switch>
           </Col>
