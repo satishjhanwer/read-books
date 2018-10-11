@@ -5,7 +5,7 @@ const xml2js = require('xml2js');
 const baseOptions = {
   baseUrl: process.env.GOOD_READ_ENDPOINT || 'https://www.goodreads.com',
   qs: {
-    key: process.env.GOOD_READ_KEY || 'zmD2sLp5KUJtEfr5ACBRCA',
+    key: process.env.GOOD_READ_KEY || '',
   },
 };
 const goodReadRouter = express.Router();
