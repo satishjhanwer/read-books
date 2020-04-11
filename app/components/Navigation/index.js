@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { injectIntl, intlShape } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 
 import {
   Navbar,
@@ -37,19 +37,20 @@ class Navigation extends React.Component {
   }
 
   render() {
-    const {
-      intl: { formatMessage },
-    } = this.props;
     const { isOpen } = this.state;
     return (
       <React.Fragment>
         <Navbar color="dark" dark expand="md">
-          <NavbarBrand href="/">{formatMessage(messages.header)}</NavbarBrand>
+          <NavbarBrand href="/">
+            <FormattedMessage {...messages.header} />
+          </NavbarBrand>
           <NavbarToggler onClick={this.toggle} />
           <Collapse isOpen={isOpen} navbar>
             <Nav className="ml-auto" navbar>
               <NavItem>
-                <NavLink href="/">{formatMessage(messages.search)}</NavLink>
+                <NavLink href="/">
+                  <FormattedMessage {...messages.search} />
+                </NavLink>
               </NavItem>
             </Nav>
           </Collapse>
@@ -59,8 +60,4 @@ class Navigation extends React.Component {
   }
 }
 
-Navigation.propTypes = {
-  intl: intlShape.isRequired,
-};
-
-export default injectIntl(Navigation);
+export default Navigation;

@@ -6,41 +6,43 @@
 
 import { defineMessages } from 'react-intl';
 
+export const scope = 'app.containers.BookDetails';
+
 export default defineMessages({
   header: {
-    id: 'app.containers.BookDetails.header',
+    id: `${scope}.header`,
     defaultMessage: 'Book Details',
   },
   by: {
-    id: 'app.containers.BookDetails.by',
+    id: `${scope}.by`,
     defaultMessage: 'By:',
   },
   description: {
-    id: 'app.containers.BookDetails.description',
+    id: `${scope}.description`,
     defaultMessage: 'Description',
   },
   isbn: {
-    id: 'app.containers.BookDetails.isbn',
+    id: `${scope}.isbn`,
     defaultMessage: 'ISBN#',
   },
   publicationYear: {
-    id: 'app.containers.BookDetails.publicationYear',
+    id: `${scope}.publicationYear`,
     defaultMessage: 'Publication Year',
   },
   publisher: {
-    id: 'app.containers.BookDetails.publisher',
+    id: `${scope}.publisher`,
     defaultMessage: 'Publisher',
   },
   format: {
-    id: 'app.containers.BookDetails.format',
+    id: `${scope}.format`,
     defaultMessage: 'Format',
   },
   review: {
-    id: 'app.containers.BookDetails.review',
+    id: `${scope}.review`,
     defaultMessage: 'Total Review',
   },
   rating: {
-    id: 'app.containers.BookDetails.rating',
+    id: `${scope}.rating`,
     defaultMessage: 'Average Rating',
   },
 });

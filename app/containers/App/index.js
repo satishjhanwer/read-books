@@ -1,14 +1,9 @@
 /**
  *
- * App.js
+ * App
  *
  * This component is the skeleton around the actual pages, and should only
  * contain code that should be seen on all pages. (e.g. navigation bar)
- *
- * NOTE: while this component should technically be a stateless functional
- * component (SFC), hot reloading does not currently support SFCs. If hot
- * reloading is not a necessity for you then you can refactor it and remove
- * the linting exception.
  */
 
 import React from 'react';
@@ -17,17 +12,21 @@ import { Switch, Route } from 'react-router-dom';
 import { Container, Row, Col } from 'reactstrap';
 
 import Navigation from 'components/Navigation/Loadable';
-import HomePage from 'containers/Home/Loadable';
+import HomePage from 'containers/HomePage/Loadable';
 import AuthorDetailPage from 'containers/AuthorDetails/Loadable';
 import BookDetailPage from 'containers/BookDetails/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 
+import GlobalStyle from '../../global-styles';
+
 export default function App() {
   return (
     <React.Fragment>
-      <Helmet>
-        <title>Home</title>
-        <meta name="description" content="Home" />
+      <Helmet titleTemplate="%s - Search Books" defaultTitle="Search Books">
+        <meta
+          name="description"
+          content="A React.js application for searching books"
+        />
       </Helmet>
       <Navigation />
       <Container>
@@ -37,10 +36,11 @@ export default function App() {
               <Route exact path="/" component={HomePage} />
               <Route path="/book/:id" component={BookDetailPage} />
               <Route path="/author/:id" component={AuthorDetailPage} />
-              <Route component={NotFoundPage} />
+              <Route path="" component={NotFoundPage} />
             </Switch>
           </Col>
         </Row>
+        <GlobalStyle />
       </Container>
     </React.Fragment>
   );

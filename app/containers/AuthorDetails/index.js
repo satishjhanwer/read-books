@@ -4,50 +4,45 @@
  *
  */
 
-import React from 'react';
+import React, { useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { Helmet } from 'react-helmet';
-
 import { Link } from 'react-router-dom';
-import { injectIntl, intlShape } from 'react-intl';
-import { createStructuredSelector } from 'reselect';
+import { connect } from 'react-redux';
 import { compose } from 'redux';
+import { FormattedMessage } from 'react-intl';
+import { createStructuredSelector } from 'reselect';
 
-import injectSaga from 'utils/injectSaga';
-import injectReducer from 'utils/injectReducer';
-import { makeSelectAuthorInfo, makeSelectAuthorDetails } from './selectors';
+import { useInjectReducer } from 'utils/injectReducer';
+import { useInjectSaga } from 'utils/injectSaga';
+
+import { makeSelectAuthorInfo } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import messages from './messages';
 import { authorInfoRequest } from './actions';
 
-/* eslint-disable react/prefer-stateless-function */
-export class AuthorDetails extends React.Component {
-  componentDidMount() {
-    const {
-      match: {
-        params: { id },
-      },
-      fetchAuthorInfo,
-    } = this.props;
+const key = 'authorDetails';
+
+export function AuthorDetails({
+  match: {
+    params: { id },
+  },
+  authorInfo,
+  fetchAuthorInfo,
+}) {
+  useInjectReducer({ key, reducer });
+  useInjectSaga({ key, saga });
+
+  useEffect(() => {
+    // Load the book details if the id is present in the url params
     if (id) {
       fetchAuthorInfo(id);
     }
-  }
-
-  render() {
-    const {
-      authorInfo,
-      intl: { formatMessage },
-    } = this.props;
-    return (
-      <React.Fragment>
-        <Helmet>
-          <title>{formatMessage(messages.header)}</title>
-          <meta name="description" content={formatMessage(messages.header)} />
-        </Helmet>
-        {authorInfo && (
+  }, []);
+  return (
+    <React.Fragment>
+      {authorInfo && (
+        <React.Fragment>
           <div className="card">
             <div className="row">
               <aside className="col-sm-5 border-right">
@@ -57,7 +52,7 @@ export class AuthorDetails extends React.Component {
                   </div>
                   <div className="img-small-wrap">
                     <h3 className="mb-3" style={{ marginTop: '20px' }}>
-                      {formatMessage(messages.books)}
+                      <FormattedMessage {...messages.books} />
                     </h3>
                     {authorInfo.books && authorInfo.books.length > 0 ? (
                       authorInfo.books.map(book => (
@@ -77,7 +72,9 @@ export class AuthorDetails extends React.Component {
                 <article className="card-body p-5">
                   <h3 className="title mb-3">{authorInfo.name}</h3>
                   <dl className="item-property">
-                    <dt>{formatMessage(messages.about)}</dt>
+                    <dt>
+                      <FormattedMessage {...messages.about} />
+                    </dt>
                     <dd>
                       <p
                         dangerouslySetInnerHTML={{
@@ -87,27 +84,39 @@ export class AuthorDetails extends React.Component {
                     </dd>
                   </dl>
                   <dl className="param param-feature">
-                    <dt>{formatMessage(messages.gender)}</dt>
+                    <dt>
+                      <FormattedMessage {...messages.gender} />
+                    </dt>
                     <dd>{authorInfo.gender}</dd>
                   </dl>
                   <dl className="param param-feature">
-                    <dt>{formatMessage(messages.born)}</dt>
+                    <dt>
+                      <FormattedMessage {...messages.born} />
+                    </dt>
                     <dd>{authorInfo.born_at}</dd>
                   </dl>
                   <dl className="param param-feature">
-                    <dt>{formatMessage(messages.died)}</dt>
+                    <dt>
+                      <FormattedMessage {...messages.died} />
+                    </dt>
                     <dd>{authorInfo.died_at}</dd>
                   </dl>
                   <dl className="param param-feature">
-                    <dt>{formatMessage(messages.hometown)}</dt>
+                    <dt>
+                      <FormattedMessage {...messages.hometown} />
+                    </dt>
                     <dd>{authorInfo.hometown}</dd>
                   </dl>
                   <dl className="param param-feature">
-                    <dt>{formatMessage(messages.followers)}</dt>
+                    <dt>
+                      <FormattedMessage {...messages.followers} />
+                    </dt>
                     <dd>{authorInfo.author_followers_count}</dd>
                   </dl>
                   <dl className="param param-feature">
-                    <dt> {formatMessage(messages.fans)}</dt>
+                    <dt>
+                      <FormattedMessage {...messages.fans} />
+                    </dt>
                     <dd>{authorInfo.fans_count}</dd>
                   </dl>
                   <hr />
@@ -115,21 +124,19 @@ export class AuthorDetails extends React.Component {
               </aside>
             </div>
           </div>
-        )}
-      </React.Fragment>
-    );
-  }
+        </React.Fragment>
+      )}
+    </React.Fragment>
+  );
 }
 
 AuthorDetails.propTypes = {
   fetchAuthorInfo: PropTypes.func,
   authorInfo: PropTypes.object,
   match: PropTypes.any,
-  intl: intlShape.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
-  authorDetails: makeSelectAuthorDetails(),
   authorInfo: makeSelectAuthorInfo(),
 });
 
@@ -144,12 +151,7 @@ const withConnect = connect(
   mapDispatchToProps,
 );
 
-const withReducer = injectReducer({ key: 'authorDetails', reducer });
-const withSaga = injectSaga({ key: 'authorDetails', saga });
-
 export default compose(
-  injectIntl,
-  withReducer,
-  withSaga,
   withConnect,
+  memo,
 )(AuthorDetails);

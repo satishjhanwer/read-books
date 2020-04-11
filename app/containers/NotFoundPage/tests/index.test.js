@@ -1,15 +1,35 @@
+/**
+ * Testing the NotFoundPage
+ */
+
+/**
+ * Test the BookDetails
+ */
+
 import React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { shallow } from 'enzyme';
+import { render } from 'react-testing-library';
+import { IntlProvider } from 'react-intl';
+import { Provider } from 'react-redux';
+import { browserHistory } from 'react-router-dom';
 
-import NotFoundPage from '../index';
-import messages from '../messages';
+import NotFound from '../index';
+import configureStore from '../../../configureStore';
 
-describe('<NotFoundPage />', () => {
-  it('should render the page message', () => {
-    const renderedComponent = shallow(<NotFoundPage />);
-    expect(
-      renderedComponent.contains(<FormattedMessage {...messages.header} />),
-    ).toEqual(true);
+describe('<NotFound />', () => {
+  let store;
+
+  beforeAll(() => {
+    store = configureStore({}, browserHistory);
+  });
+
+  it('should render the Page Not Found text', () => {
+    const component = render(
+      <Provider store={store}>
+        <IntlProvider locale="en">
+          <NotFound />
+        </IntlProvider>
+      </Provider>,
+    );
+    expect(component).toMatchSnapshot();
   });
 });

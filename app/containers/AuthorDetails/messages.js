@@ -6,41 +6,43 @@
 
 import { defineMessages } from 'react-intl';
 
+export const scope = 'app.containers.AuthorDetails';
+
 export default defineMessages({
   header: {
-    id: 'app.containers.AuthorDetails.header',
+    id: `${scope}.header`,
     defaultMessage: 'Author Details',
   },
   about: {
-    id: 'app.containers.AuthorDetails.about',
+    id: `${scope}.about`,
     defaultMessage: 'About',
   },
   fans: {
-    id: 'app.containers.AuthorDetails.fans',
+    id: `${scope}.fans`,
     defaultMessage: 'Total Fans',
   },
   followers: {
-    id: 'app.containers.AuthorDetails.followers',
+    id: `${scope}.followers`,
     defaultMessage: 'Total Followers',
   },
   gender: {
-    id: 'app.containers.AuthorDetails.gender',
+    id: `${scope}.gender`,
     defaultMessage: 'Gender',
   },
   hometown: {
-    id: 'app.containers.AuthorDetails.hometown',
+    id: `${scope}.hometown`,
     defaultMessage: 'Hometown',
   },
   born: {
-    id: 'app.containers.AuthorDetails.born',
+    id: `${scope}.born`,
     defaultMessage: 'Born At',
   },
   died: {
-    id: 'app.containers.AuthorDetails.died',
+    id: `${scope}.died`,
     defaultMessage: 'Died At',
   },
   books: {
-    id: 'app.containers.AuthorDetails.books',
+    id: `${scope}.books`,
     defaultMessage: 'Book Published',
   },
 });

@@ -1,15 +1,18 @@
 /**
- * Test sagas
+ * Tests from AuthorDetailsPage sagas
  */
 
-/* eslint-disable redux-saga/yield-effects */
-// import { take, call, put, select } from 'redux-saga/effects';
-// import { defaultSaga } from '../saga';
+import { takeLatest } from 'redux-saga/effects';
+import { AUTHOR_INFO_REQUEST } from '../constants';
+import authorDetailsData, { GetAuthorInfo } from '../saga';
 
-// const generator = defaultSaga();
+describe('authorDetailsData Saga', () => {
+  const authorDetailsSaga = authorDetailsData();
 
-describe('defaultSaga Saga', () => {
-  it('Expect to have unit tests specified', () => {
-    expect(true).toEqual(false);
+  it('should start task to watch for BOOK_INFO_REQUEST action', () => {
+    const takeLatestDescriptor = authorDetailsSaga.next().value;
+    expect(takeLatestDescriptor).toEqual(
+      takeLatest(AUTHOR_INFO_REQUEST, GetAuthorInfo),
+    );
   });
 });

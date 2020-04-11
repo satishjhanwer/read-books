@@ -4,30 +4,33 @@
  *
  */
 
-import { fromJS } from 'immutable';
+import produce from 'immer';
 import {
   BOOK_INFO_FAILURE,
   BOOK_INFO_REQUEST,
   BOOK_INFO_SUCCESS,
 } from './constants';
 
-export const initialState = fromJS({
+export const initialState = {
   bookId: '',
   errorMessage: undefined,
   book: undefined,
-});
+};
 
-function bookDetailsReducer(state = initialState, action) {
-  switch (action.type) {
-    case BOOK_INFO_REQUEST:
-      return state.set('bookId', action.id);
-    case BOOK_INFO_SUCCESS:
-      return state.set('book', action.book);
-    case BOOK_INFO_FAILURE:
-      return state.set('errorMessage', action.message);
-    default:
-      return state;
-  }
-}
+/* eslint-disable default-case, no-param-reassign */
+const bookDetailsReducer = (state = initialState, action) =>
+  produce(state, draft => {
+    switch (action.type) {
+      case BOOK_INFO_REQUEST:
+        draft.bookId = action.id;
+        break;
+      case BOOK_INFO_SUCCESS:
+        draft.book = action.book;
+        break;
+      case BOOK_INFO_FAILURE:
+        draft.errorMessage = action.message;
+        break;
+    }
+  });
 
 export default bookDetailsReducer;

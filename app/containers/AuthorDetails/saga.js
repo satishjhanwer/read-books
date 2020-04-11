@@ -19,6 +19,6 @@ export function* GetAuthorInfo() {
 /**
  * Root saga manages watcher life-cycle
  */
-export default function* githubData() {
+export default function* authorDetailsData() {
   yield takeLatest(AUTHOR_INFO_REQUEST, GetAuthorInfo);
 }

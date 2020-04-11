@@ -1,10 +1,10 @@
-// import React from 'react';
-// import { shallow } from 'enzyme';
+import React from 'react';
+import { render } from 'react-testing-library';
+import Navigation from '../index';
 
-// import Navbar from '../index';
-
-describe('<Navbar />', () => {
-  it('Expect to have unit tests specified', () => {
-    expect(true).toEqual(false);
+describe('<Navigation />', () => {
+  it('should render and match the snapshot', () => {
+    const component = render(<Navigation />);
+    expect(component).toMatchSnapshot();
   });
 });

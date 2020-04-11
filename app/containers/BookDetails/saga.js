@@ -19,6 +19,6 @@ export function* GetBookInfo() {
 /**
  * Root saga manages watcher life-cycle
  */
-export default function* githubData() {
+export default function* bookDetailsData() {
   yield takeLatest(BOOK_INFO_REQUEST, GetBookInfo);
 }

@@ -1,36 +1,31 @@
+/**
+ * BookDetails selectors
+ */
 import { createSelector } from 'reselect';
 import { initialState } from './reducer';
 
-/**
- * Direct selector to the bookDetails state domain
- */
+const selectBookDetails = state => state.bookDetails || initialState;
 
-const selectBookDetailsDomain = state => state.get('bookDetails', initialState);
-
-/**
- * Other specific selectors
- */
 const makeSelectBookId = () =>
-  createSelector(selectBookDetailsDomain, subState => subState.get('bookId'));
-
-const makeSelectBookInfo = () =>
-  createSelector(selectBookDetailsDomain, subState => subState.get('book'));
-
-const makeSelectErrorMessage = () =>
-  createSelector(selectBookDetailsDomain, subState =>
-    subState.get('errorMessage'),
+  createSelector(
+    selectBookDetails,
+    bookDetailState => bookDetailState.bookId,
   );
 
-/**
- * Default selector used by BookDetails
- */
+const makeSelectBookInfo = () =>
+  createSelector(
+    selectBookDetails,
+    bookDetailState => bookDetailState.book,
+  );
 
-const makeSelectBookDetails = () =>
-  createSelector(selectBookDetailsDomain, subState => subState.toJS());
+const makeSelectErrorMessage = () =>
+  createSelector(
+    selectBookDetails,
+    bookDetailState => bookDetailState.errorMessage,
+  );
 
 export {
-  makeSelectBookDetails,
-  selectBookDetailsDomain,
+  selectBookDetails,
   makeSelectBookInfo,
   makeSelectBookId,
   makeSelectErrorMessage,

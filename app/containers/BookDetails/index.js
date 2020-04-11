@@ -4,50 +4,45 @@
  *
  */
 
-import React from 'react';
+import React, { useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-
-import { injectIntl, intlShape } from 'react-intl';
-import { createStructuredSelector } from 'reselect';
+import { connect } from 'react-redux';
 import { compose } from 'redux';
+import { FormattedMessage } from 'react-intl';
+import { createStructuredSelector } from 'reselect';
 
-import injectSaga from 'utils/injectSaga';
-import injectReducer from 'utils/injectReducer';
+import { useInjectReducer } from 'utils/injectReducer';
+import { useInjectSaga } from 'utils/injectSaga';
+
 import { makeSelectBookInfo } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import messages from './messages';
 import { requestBookInfo } from './actions';
 
-/* eslint-disable react/prefer-stateless-function */
-export class BookDetails extends React.Component {
-  componentDidMount() {
-    const {
-      match: {
-        params: { id },
-      },
-      fetchBookInfo,
-    } = this.props;
+const key = 'bookDetails';
+
+export function BookDetails({
+  match: {
+    params: { id },
+  },
+  bookObj,
+  fetchBookInfo,
+}) {
+  useInjectReducer({ key, reducer });
+  useInjectSaga({ key, saga });
+
+  useEffect(() => {
+    // Load the book details if the id is present in the url params
     if (id) {
       fetchBookInfo(id);
     }
-  }
-
-  render() {
-    const {
-      bookObj,
-      intl: { formatMessage },
-    } = this.props;
-    return (
-      <React.Fragment>
-        <Helmet>
-          <title>{formatMessage(messages.header)}</title>
-          <meta name="description" content="Book Details" />
-        </Helmet>
-        {bookObj && (
+  }, []);
+  return (
+    <React.Fragment>
+      {bookObj && (
+        <React.Fragment>
           <div className="card">
             <div className="row">
               <aside className="col-sm-5 border-right">
@@ -62,14 +57,16 @@ export class BookDetails extends React.Component {
                   <h3 className="title mb-3">{bookObj.title}</h3>
                   <p className="price-detail-wrap">
                     <span>
-                      {formatMessage(messages.by)}
+                      <FormattedMessage {...messages.by} />
                       <Link to={`/author/${bookObj.author.id}`}>
                         {bookObj.author.name}
                       </Link>
                     </span>
                   </p>
                   <dl className="item-property">
-                    <dt>{formatMessage(messages.description)}</dt>
+                    <dt>
+                      <FormattedMessage {...messages.description} />
+                    </dt>
                     <dd>
                       <p
                         dangerouslySetInnerHTML={{
@@ -79,27 +76,39 @@ export class BookDetails extends React.Component {
                     </dd>
                   </dl>
                   <dl className="param param-feature">
-                    <dt>{formatMessage(messages.isbn)}</dt>
+                    <dt>
+                      <FormattedMessage {...messages.isbn} />
+                    </dt>
                     <dd>{bookObj.isbn}</dd>
                   </dl>
                   <dl className="param param-feature">
-                    <dt>{formatMessage(messages.publicationYear)}</dt>
+                    <dt>
+                      <FormattedMessage {...messages.publicationYear} />
+                    </dt>
                     <dd>{bookObj.publication_year}</dd>
                   </dl>
                   <dl className="param param-feature">
-                    <dt>{formatMessage(messages.publisher)}</dt>
+                    <dt>
+                      <FormattedMessage {...messages.publisher} />
+                    </dt>
                     <dd>{bookObj.publisher}</dd>
                   </dl>
                   <dl className="param param-feature">
-                    <dt>{formatMessage(messages.format)}</dt>
+                    <dt>
+                      <FormattedMessage {...messages.format} />
+                    </dt>
                     <dd>{bookObj.format}</dd>
                   </dl>
                   <dl className="param param-feature">
-                    <dt> {formatMessage(messages.review)}</dt>
+                    <dt>
+                      <FormattedMessage {...messages.rating} />
+                    </dt>
                     <dd>{bookObj.text_reviews_count}</dd>
                   </dl>
                   <dl className="param param-feature">
-                    <dt>{formatMessage(messages.rating)}</dt>
+                    <dt>
+                      <FormattedMessage {...messages.rating} />
+                    </dt>
                     <dd>{bookObj.average_rating}</dd>
                   </dl>
                   <hr />
@@ -107,17 +116,16 @@ export class BookDetails extends React.Component {
               </aside>
             </div>
           </div>
-        )}
-      </React.Fragment>
-    );
-  }
+        </React.Fragment>
+      )}
+    </React.Fragment>
+  );
 }
 
 BookDetails.propTypes = {
   fetchBookInfo: PropTypes.func,
   bookObj: PropTypes.any,
   match: PropTypes.any,
-  intl: intlShape.isRequired,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -133,12 +141,7 @@ const withConnect = connect(
   mapDispatchToProps,
 );
 
-const withReducer = injectReducer({ key: 'bookDetails', reducer });
-const withSaga = injectSaga({ key: 'bookDetails', saga });
-
 export default compose(
-  injectIntl,
-  withReducer,
-  withSaga,
   withConnect,
+  memo,
 )(BookDetails);

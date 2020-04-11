@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<App /> should render and match the snapshot 1`] = `
+<React.Fragment>
+  <HelmetWrapper
+    defaultTitle="Search Books"
+    defer={true}
+    encodeSpecialCharacters={true}
+    titleTemplate="%s - Search Books"
+  >
+    <meta
+      content="A React.js application for searching books"
+      name="description"
+    />
+  </HelmetWrapper>
+  <Unknown />
+  <Container
+    tag="div"
+  >
+    <Row
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <Col
+        sm="12"
+        tag="div"
+        widths={
+          Array [
+            "xs",
+            "sm",
+            "md",
+            "lg",
+            "xl",
+          ]
+        }
+      >
+        <Switch>
+          <Route
+            component={[Function]}
+            exact={true}
+            path="/"
+          />
+          <Route
+            component={[Function]}
+            path="/book/:id"
+          />
+          <Route
+            component={[Function]}
+            path="/author/:id"
+          />
+          <Route
+            component={[Function]}
+            path=""
+          />
+        </Switch>
+      </Col>
+    </Row>
+    <GlobalStyleComponent />
+  </Container>
+</React.Fragment>
+`;

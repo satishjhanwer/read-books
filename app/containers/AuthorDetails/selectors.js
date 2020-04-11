@@ -1,40 +1,28 @@
 import { createSelector } from 'reselect';
 import { initialState } from './reducer';
 
-/**
- * Direct selector to the authorDetails state domain
- */
+const selectAuthorDetails = state => state.authorDetails || initialState;
 
-const selectAuthorDetailsDomain = state =>
-  state.get('authorDetails', initialState);
-
-/**
- * Other specific selectors
- */
 const makeSelectAuthorId = () =>
-  createSelector(selectAuthorDetailsDomain, subState =>
-    subState.get('authorId'),
+  createSelector(
+    selectAuthorDetails,
+    subState => subState.authorId,
   );
 
 const makeSelectAuthorInfo = () =>
-  createSelector(selectAuthorDetailsDomain, subState =>
-    subState.get('authorInfo'),
+  createSelector(
+    selectAuthorDetails,
+    subState => subState.authorInfo,
   );
 
 const makeSelectErrorMessage = () =>
-  createSelector(selectAuthorDetailsDomain, subState =>
-    subState.get('errorMessage'),
+  createSelector(
+    selectAuthorDetails,
+    subState => subState.errorMessage,
   );
-/**
- * Default selector used by AuthorDetails
- */
-
-const makeSelectAuthorDetails = () =>
-  createSelector(selectAuthorDetailsDomain, subState => subState.toJS());
 
 export {
-  makeSelectAuthorDetails,
-  selectAuthorDetailsDomain,
+  selectAuthorDetails,
   makeSelectAuthorId,
   makeSelectAuthorInfo,
   makeSelectErrorMessage,
