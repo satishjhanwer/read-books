@@ -13,6 +13,7 @@
   "author": "Satish Jhanwer",
   "license": "MIT",
   "scripts": {
+    "postversion": "git push --tags",
     "analyze:clean": "rimraf stats.json",
     "preanalyze": "npm run analyze:clean",
     "analyze": "node ./internals/scripts/analyze.js",
