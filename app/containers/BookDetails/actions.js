@@ -4,11 +4,7 @@
  *
  */
 
-import {
-  BOOK_INFO_REQUEST,
-  BOOK_INFO_SUCCESS,
-  BOOK_INFO_FAILURE,
-} from './constants';
+import { BOOK_INFO_REQUEST, BOOK_INFO_SUCCESS, BOOK_INFO_FAILURE } from './constants';
 
 /**
  *

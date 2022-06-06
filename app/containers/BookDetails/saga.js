@@ -1,5 +1,5 @@
-import request from 'utils/request';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
+import request from '../../utils/request';
 import { BOOK_INFO_REQUEST } from './constants';
 import { makeSelectBookId } from './selectors';
 import { requestBookInfoFailure, requestBookInfoSuccess } from './actions';
@@ -7,9 +7,10 @@ import { requestBookInfoFailure, requestBookInfoSuccess } from './actions';
 export function* GetBookInfo() {
   // Select username from store
   const bookId = yield select(makeSelectBookId());
-  const requestURL = `/api/book/${bookId}`;
+  const requestURL = `/api/book/works/${bookId}`;
   try {
     const book = yield call(request, requestURL);
+    console.log('boook------>', book);
     yield put(requestBookInfoSuccess(book));
   } catch (err) {
     yield put(requestBookInfoFailure(err));

@@ -12,8 +12,8 @@ import { compose } from 'redux';
 import { FormattedMessage } from 'react-intl';
 import { createStructuredSelector } from 'reselect';
 
-import { useInjectReducer } from 'utils/injectReducer';
-import { useInjectSaga } from 'utils/injectSaga';
+import { useInjectReducer } from '../../utils/injectReducer';
+import { useInjectSaga } from '../../utils/injectSaga';
 
 import { makeSelectBookInfo } from './selectors';
 import reducer from './reducer';
@@ -40,9 +40,9 @@ export function BookDetails({
     }
   }, []);
   return (
-    <React.Fragment>
+    <>
       {bookObj && (
-        <React.Fragment>
+        <>
           <div className="card">
             <div className="row">
               <aside className="col-sm-5 border-right">
@@ -58,9 +58,7 @@ export function BookDetails({
                   <p className="price-detail-wrap">
                     <span>
                       <FormattedMessage {...messages.by} />
-                      <Link to={`/author/${bookObj.author.id}`}>
-                        {bookObj.author.name}
-                      </Link>
+                      <Link to={`/author/${bookObj.author.id}`}>{bookObj.author.name}</Link>
                     </span>
                   </p>
                   <dl className="item-property">
@@ -116,9 +114,9 @@ export function BookDetails({
               </aside>
             </div>
           </div>
-        </React.Fragment>
+        </>
       )}
-    </React.Fragment>
+    </>
   );
 }
 
@@ -133,15 +131,9 @@ const mapStateToProps = createStructuredSelector({
 });
 
 function mapDispatchToProps(dispatch) {
-  return { fetchBookInfo: id => dispatch(requestBookInfo(id)) };
+  return { fetchBookInfo: (id) => dispatch(requestBookInfo(id)) };
 }
 
-const withConnect = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
+const withConnect = connect(mapStateToProps, mapDispatchToProps);
 
-export default compose(
-  withConnect,
-  memo,
-)(BookDetails);
+export default compose(withConnect, memo)(BookDetails);

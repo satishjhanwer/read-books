@@ -8,40 +8,37 @@
 
 import React from 'react';
 import { Helmet } from 'react-helmet';
-import { Switch, Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { Container, Row, Col } from 'reactstrap';
 
-import Navigation from 'components/Navigation/Loadable';
-import HomePage from 'containers/HomePage/Loadable';
-import AuthorDetailPage from 'containers/AuthorDetails/Loadable';
-import BookDetailPage from 'containers/BookDetails/Loadable';
-import NotFoundPage from 'containers/NotFoundPage/Loadable';
+import Navigation from '../../components/Navigation/Loadable';
+import HomePage from '../HomePage/Loadable';
+import AuthorDetailPage from '../AuthorDetails/Loadable';
+import BookDetailPage from '../BookDetails/Loadable';
+import NotFoundPage from '../NotFoundPage/Loadable';
 
 import GlobalStyle from '../../global-styles';
 
 export default function App() {
   return (
-    <React.Fragment>
+    <>
       <Helmet titleTemplate="%s - Search Books" defaultTitle="Search Books">
-        <meta
-          name="description"
-          content="A React.js application for searching books"
-        />
+        <meta name="description" content="A React.js application for searching books" />
       </Helmet>
       <Navigation />
       <Container>
         <Row>
           <Col sm="12">
-            <Switch>
-              <Route exact path="/" component={HomePage} />
-              <Route path="/book/:id" component={BookDetailPage} />
-              <Route path="/author/:id" component={AuthorDetailPage} />
-              <Route path="" component={NotFoundPage} />
-            </Switch>
+            <Routes>
+              <Route exact path="/" element={<HomePage />} />
+              <Route path="/book/:id" element={<BookDetailPage />} />
+              <Route path="/author/:id" element={<AuthorDetailPage />} />
+              <Route path="" element={<NotFoundPage />} />
+            </Routes>
           </Col>
         </Row>
         <GlobalStyle />
       </Container>
-    </React.Fragment>
+    </>
   );
 }

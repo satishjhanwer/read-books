@@ -1,5 +1,5 @@
-import request from 'utils/request';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
+import request from '../../utils/request';
 import { BOOK_SEARCH_REQUEST } from './constants';
 import { makeSelectSearchTerm } from './selectors';
 import { requestBookSearchFailure, requestBookSearchSuccess } from './actions';
@@ -10,7 +10,7 @@ export function* GetBookSearch() {
   const requestURL = `/api/search?q=${encodeURI(searchTerm)}`;
   try {
     const response = yield call(request, requestURL);
-    yield put(requestBookSearchSuccess(response.books));
+    yield put(requestBookSearchSuccess(response.docs));
   } catch (err) {
     yield put(requestBookSearchFailure(err));
   }

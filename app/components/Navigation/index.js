@@ -7,19 +7,10 @@
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 
-import {
-  Navbar,
-  NavbarBrand,
-  NavbarToggler,
-  Collapse,
-  Nav,
-  NavItem,
-  NavLink,
-} from 'reactstrap';
+import { Navbar, NavbarBrand, NavbarToggler, Collapse, Nav, NavItem, NavLink } from 'reactstrap';
 
 import messages from './messages';
 
-/* eslint-disable react/prefer-stateless-function */
 class Navigation extends React.Component {
   constructor(props) {
     super(props);
@@ -39,7 +30,7 @@ class Navigation extends React.Component {
   render() {
     const { isOpen } = this.state;
     return (
-      <React.Fragment>
+      <>
         <Navbar color="dark" dark expand="md">
           <NavbarBrand href="/">
             <FormattedMessage {...messages.header} />
@@ -55,7 +46,7 @@ class Navigation extends React.Component {
             </Nav>
           </Collapse>
         </Navbar>
-      </React.Fragment>
+      </>
     );
   }
 }

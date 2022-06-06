@@ -4,11 +4,7 @@
  */
 
 import produce from 'immer';
-import {
-  CHANGE_SEARCH_TERM,
-  BOOK_SEARCH_SUCCESS,
-  BOOK_SEARCH_FAILURE,
-} from './constants';
+import { CHANGE_SEARCH_TERM, BOOK_SEARCH_SUCCESS, BOOK_SEARCH_FAILURE } from './constants';
 
 // The initial state of the App
 export const initialState = {
@@ -19,7 +15,7 @@ export const initialState = {
 
 /* eslint-disable default-case, no-param-reassign */
 const homeReducer = (state = initialState, action) =>
-  produce(state, draft => {
+  produce(state, (draft) => {
     switch (action.type) {
       case CHANGE_SEARCH_TERM:
         draft.searchTerm = action.searchTerm;
