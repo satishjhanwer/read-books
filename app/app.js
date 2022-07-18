@@ -55,7 +55,6 @@ const render = (messages) => {
         </LanguageProvider>
       </PersistGate>
     </Provider>,
-    MOUNT_NODE,
   );
 };
 
@@ -63,7 +62,7 @@ if (module.hot) {
   // Hot re-loadable React components and translation json files
   // modules.hot.accept does not accept dynamic dependencies,
   // have to be constants at compile-time
-  module.hot.accept(['./i18n', 'containers/App'], () => {
+  module.hot.accept(['./i18n', './containers/App'], () => {
     render(translationMessages);
   });
 }
