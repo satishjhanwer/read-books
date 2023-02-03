@@ -1,5 +1,5 @@
-import request from 'utils/request';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
+import request from '../../utils/request';
 import { AUTHOR_INFO_REQUEST } from './constants';
 import { makeSelectAuthorId } from './selectors';
 import { authorInfoFailure, authorInfoSuccess } from './actions';

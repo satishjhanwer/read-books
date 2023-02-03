@@ -21,12 +21,10 @@ describe('bookDetailsReducer', () => {
 
   it('should handle the requestBookInfo action correctly', () => {
     const fixture = '1234';
-    const expectedResult = produce(state, draft => {
+    const expectedResult = produce(state, (draft) => {
       draft.bookId = fixture;
     });
 
-    expect(bookDetailsReducer(state, requestBookInfo(fixture))).toEqual(
-      expectedResult,
-    );
+    expect(bookDetailsReducer(state, requestBookInfo(fixture))).toEqual(expectedResult);
   });
 });

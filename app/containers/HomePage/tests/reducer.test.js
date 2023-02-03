@@ -21,12 +21,10 @@ describe('homeReducer', () => {
 
   it('should handle the changeSearchTerm action correctly', () => {
     const fixture = 'harry';
-    const expectedResult = produce(state, draft => {
+    const expectedResult = produce(state, (draft) => {
       draft.searchTerm = fixture;
     });
 
-    expect(homeReducer(state, changeSearchTerm(fixture))).toEqual(
-      expectedResult,
-    );
+    expect(homeReducer(state, changeSearchTerm(fixture))).toEqual(expectedResult);
   });
 });

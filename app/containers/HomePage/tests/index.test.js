@@ -6,19 +6,12 @@ import React from 'react';
 import { render } from 'react-testing-library';
 import { IntlProvider } from 'react-intl';
 import { Provider } from 'react-redux';
-import { browserHistory } from 'react-router-dom';
 
 import { HomePage, mapDispatchToProps } from '../index';
 import { changeSearchTerm, requestBookSearch } from '../actions';
-import configureStore from '../../../configureStore';
+import { store } from '../../../configureStore';
 
 describe('<HomePage />', () => {
-  let store;
-
-  beforeAll(() => {
-    store = configureStore({}, browserHistory);
-  });
-
   it('should render and match the snapshot', () => {
     const {
       container: { firstChild },
@@ -37,11 +30,7 @@ describe('<HomePage />', () => {
     render(
       <Provider store={store}>
         <IntlProvider locale="en">
-          <HomePage
-            searchTerm="Not Empty"
-            onChangeSearchTerm={() => {}}
-            onSubmitForm={submitSpy}
-          />
+          <HomePage searchTerm="Not Empty" onChangeSearchTerm={() => {}} onSubmitForm={submitSpy} />
         </IntlProvider>
       </Provider>,
     );

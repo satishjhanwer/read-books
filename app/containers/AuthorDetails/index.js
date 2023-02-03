@@ -12,8 +12,8 @@ import { compose } from 'redux';
 import { FormattedMessage } from 'react-intl';
 import { createStructuredSelector } from 'reselect';
 
-import { useInjectReducer } from 'utils/injectReducer';
-import { useInjectSaga } from 'utils/injectSaga';
+import { useInjectReducer } from '../../utils/injectReducer';
+import { useInjectSaga } from '../../utils/injectSaga';
 
 import { makeSelectAuthorInfo } from './selectors';
 import reducer from './reducer';
@@ -40,9 +40,9 @@ export function AuthorDetails({
     }
   }, []);
   return (
-    <React.Fragment>
+    <>
       {authorInfo && (
-        <React.Fragment>
+        <>
           <div className="card">
             <div className="row">
               <aside className="col-sm-5 border-right">
@@ -55,7 +55,7 @@ export function AuthorDetails({
                       <FormattedMessage {...messages.books} />
                     </h3>
                     {authorInfo.books && authorInfo.books.length > 0 ? (
-                      authorInfo.books.map(book => (
+                      authorInfo.books.map((book) => (
                         <div className="item-gallery" key={book.id}>
                           <Link to={`/book/${book.id}`}>
                             <img src={book.small_image_url} alt="" />
@@ -63,7 +63,7 @@ export function AuthorDetails({
                         </div>
                       ))
                     ) : (
-                      <React.Fragment />
+                      <></>
                     )}
                   </div>
                 </article>
@@ -124,9 +124,9 @@ export function AuthorDetails({
               </aside>
             </div>
           </div>
-        </React.Fragment>
+        </>
       )}
-    </React.Fragment>
+    </>
   );
 }
 
@@ -142,16 +142,10 @@ const mapStateToProps = createStructuredSelector({
 
 function mapDispatchToProps(dispatch) {
   return {
-    fetchAuthorInfo: id => dispatch(authorInfoRequest(id)),
+    fetchAuthorInfo: (id) => dispatch(authorInfoRequest(id)),
   };
 }
 
-const withConnect = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
+const withConnect = connect(mapStateToProps, mapDispatchToProps);
 
-export default compose(
-  withConnect,
-  memo,
-)(AuthorDetails);
+export default compose(withConnect, memo)(AuthorDetails);

@@ -23,6 +23,10 @@ export default defineMessages({
   },
   reviews: {
     id: `${scope}.reviews`,
-    defaultMessage: 'reviews',
+    defaultMessage: ' editions in ',
+  },
+  language: {
+    id: `${scope}.language`,
+    defaultMessage: ' language',
   },
 });
