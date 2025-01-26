@@ -3,7 +3,6 @@ import { produce } from 'immer';
 import homeReducer from '../reducer';
 import { changeSearchTerm } from '../actions';
 
- 
 describe('homeReducer', () => {
   let state;
   beforeEach(() => {

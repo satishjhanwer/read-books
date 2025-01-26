@@ -3,7 +3,6 @@ import { produce } from 'immer';
 import bookDetailsReducer from '../reducer';
 import { requestBookInfo } from '../actions';
 
- 
 describe('bookDetailsReducer', () => {
   let state;
   beforeEach(() => {

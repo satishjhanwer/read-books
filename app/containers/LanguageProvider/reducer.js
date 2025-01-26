@@ -11,7 +11,6 @@ export const initialState = {
   locale: DEFAULT_LOCALE,
 };
 
- 
 const languageProviderReducer = (state = initialState, action) =>
   produce(state, (draft) => {
     switch (action.type) {

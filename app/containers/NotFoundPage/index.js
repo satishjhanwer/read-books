@@ -9,7 +9,6 @@ import { FormattedMessage } from 'react-intl';
 
 import messages from './messages';
 
- 
 class NotFound extends React.Component {
   render() {
     return (
