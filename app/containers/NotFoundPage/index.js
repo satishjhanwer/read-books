@@ -9,7 +9,7 @@ import { FormattedMessage } from 'react-intl';
 
 import messages from './messages';
 
-// eslint-disable-next-line react/prefer-stateless-function
+ 
 class NotFound extends React.Component {
   render() {
     return (

@@ -3,7 +3,7 @@ import { produce } from 'immer';
 import authorDetailsReducer from '../reducer';
 import { authorInfoRequest } from '../actions';
 
-/* eslint-disable default-case, no-param-reassign */
+ 
 describe('authorDetailsReducer', () => {
   let state;
   beforeEach(() => {

@@ -13,7 +13,7 @@ export const initialState = {
   bookList: [],
 };
 
-/* eslint-disable default-case, no-param-reassign */
+ 
 const homeReducer = (state = initialState, action) =>
   produce(state, (draft) => {
     switch (action.type) {

@@ -13,7 +13,7 @@ export const initialState = {
   book: undefined,
 };
 
-/* eslint-disable default-case, no-param-reassign */
+ 
 const bookDetailsReducer = (state = initialState, action) =>
   produce(state, (draft) => {
     switch (action.type) {

@@ -11,7 +11,7 @@ export const initialState = {
   locale: DEFAULT_LOCALE,
 };
 
-/* eslint-disable default-case, no-param-reassign */
+ 
 const languageProviderReducer = (state = initialState, action) =>
   produce(state, (draft) => {
     switch (action.type) {

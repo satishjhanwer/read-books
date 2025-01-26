@@ -3,7 +3,7 @@ import { produce } from 'immer';
 import homeReducer from '../reducer';
 import { changeSearchTerm } from '../actions';
 
-/* eslint-disable default-case, no-param-reassign */
+ 
 describe('homeReducer', () => {
   let state;
   beforeEach(() => {
