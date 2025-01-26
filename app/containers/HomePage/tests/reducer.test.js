@@ -1,4 +1,4 @@
-import produce from 'immer';
+import { produce } from 'immer';
 
 import homeReducer from '../reducer';
 import { changeSearchTerm } from '../actions';

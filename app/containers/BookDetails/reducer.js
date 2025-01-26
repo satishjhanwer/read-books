@@ -4,7 +4,7 @@
  *
  */
 
-import produce from 'immer';
+import { produce } from 'immer';
 import { BOOK_INFO_FAILURE, BOOK_INFO_REQUEST, BOOK_INFO_SUCCESS } from './constants';
 
 export const initialState = {

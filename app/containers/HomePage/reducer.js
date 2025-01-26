@@ -3,7 +3,7 @@
  *
  */
 
-import produce from 'immer';
+import { produce } from 'immer';
 import { CHANGE_SEARCH_TERM, BOOK_SEARCH_SUCCESS, BOOK_SEARCH_FAILURE } from './constants';
 
 // The initial state of the App
