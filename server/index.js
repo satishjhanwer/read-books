@@ -1,7 +1,9 @@
-/* eslint consistent-return:0 import/order:0 */
 const { resolve } = require('path');
+
+const colors = require('colors');
 const express = require('express');
-const logger = require('./logger');
+const ip = require('ip');
+
 const argv = require('./argv');
 const port = require('./port');
 
@@ -23,9 +25,9 @@ const customHost = argv.host || process.env.HOST;
 const host = customHost || null; // Let http.Server use its default IPv6/4 host
 const prettyHost = customHost || 'localhost';
 
-// use the g-zipped bundle
+// use the gzipped bundle
 app.get('*.js', (req, res, next) => {
-  req.url = req.url + '.gz';  
+  req.url = req.url + '.gz';
   res.set('Content-Encoding', 'gzip');
   next();
 });
@@ -33,8 +35,16 @@ app.get('*.js', (req, res, next) => {
 // Start your app.
 app.listen(port, host, async (err) => {
   if (err) {
-    return logger.error(err.message);
+    console.error(colors.red(err.message));
+    return;
   }
 
-  logger.appStarted(port, prettyHost);
+  console.log(`
+    ${colors.green('Access URLs:')}
+    ${colors.white('-----------------------------------')}
+    Localhost: ${colors.magenta(`http://${prettyHost}:${port}`)}
+    LAN: ${colors.magenta(`http://${ip.address()}:${port}`)}
+    ${colors.white('-----------------------------------')}
+    ${colors.blue('Press CTRL-C to stop')}
+  `);
 });
