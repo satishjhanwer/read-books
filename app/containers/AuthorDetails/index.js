@@ -12,8 +12,8 @@ import { compose } from 'redux';
 import { FormattedMessage } from 'react-intl';
 import { createStructuredSelector } from 'reselect';
 
-import { useInjectReducer } from 'utils/injectReducer';
-import { useInjectSaga } from 'utils/injectSaga';
+import { useInjectReducer } from '../../utils/injectReducer';
+import { useInjectSaga } from '../../utils/injectSaga';
 
 import { makeSelectAuthorInfo } from './selectors';
 import reducer from './reducer';
@@ -39,94 +39,88 @@ export function AuthorDetails({
       fetchAuthorInfo(id);
     }
   }, []);
-  return (
-    <React.Fragment>
-      {authorInfo && (
-        <React.Fragment>
-          <div className="card">
-            <div className="row">
-              <aside className="col-sm-5 border-right">
-                <article className="gallery-wrap">
-                  <div className="img-big-wrap">
-                    <img src={authorInfo.image_url} alt="" />
-                  </div>
-                  <div className="img-small-wrap">
-                    <h3 className="mb-3" style={{ marginTop: '20px' }}>
-                      <FormattedMessage {...messages.books} />
-                    </h3>
-                    {authorInfo.books && authorInfo.books.length > 0 ? (
-                      authorInfo.books.map((book) => (
-                        <div className="item-gallery" key={book.id}>
-                          <Link to={`/book/${book.id}`}>
-                            <img src={book.small_image_url} alt="" />
-                          </Link>
-                        </div>
-                      ))
-                    ) : (
-                      <React.Fragment />
-                    )}
-                  </div>
-                </article>
-              </aside>
-              <aside className="col-sm-7">
-                <article className="card-body p-5">
-                  <h3 className="title mb-3">{authorInfo.name}</h3>
-                  <dl className="item-property">
-                    <dt>
-                      <FormattedMessage {...messages.about} />
-                    </dt>
-                    <dd>
-                      <p
-                        dangerouslySetInnerHTML={{
-                          __html: authorInfo.about,
-                        }}
-                      />
-                    </dd>
-                  </dl>
-                  <dl className="param param-feature">
-                    <dt>
-                      <FormattedMessage {...messages.gender} />
-                    </dt>
-                    <dd>{authorInfo.gender}</dd>
-                  </dl>
-                  <dl className="param param-feature">
-                    <dt>
-                      <FormattedMessage {...messages.born} />
-                    </dt>
-                    <dd>{authorInfo.born_at}</dd>
-                  </dl>
-                  <dl className="param param-feature">
-                    <dt>
-                      <FormattedMessage {...messages.died} />
-                    </dt>
-                    <dd>{authorInfo.died_at}</dd>
-                  </dl>
-                  <dl className="param param-feature">
-                    <dt>
-                      <FormattedMessage {...messages.hometown} />
-                    </dt>
-                    <dd>{authorInfo.hometown}</dd>
-                  </dl>
-                  <dl className="param param-feature">
-                    <dt>
-                      <FormattedMessage {...messages.followers} />
-                    </dt>
-                    <dd>{authorInfo.author_followers_count}</dd>
-                  </dl>
-                  <dl className="param param-feature">
-                    <dt>
-                      <FormattedMessage {...messages.fans} />
-                    </dt>
-                    <dd>{authorInfo.fans_count}</dd>
-                  </dl>
-                  <hr />
-                </article>
-              </aside>
+  return authorInfo ? (
+    <div className="card">
+      <div className="row">
+        <aside className="col-sm-5 border-right">
+          <article className="gallery-wrap">
+            <div className="img-big-wrap">
+              <img src={authorInfo.image_url} alt="" />
             </div>
-          </div>
-        </React.Fragment>
-      )}
-    </React.Fragment>
+            <div className="img-small-wrap">
+              <h3 className="mb-3" style={{ marginTop: '20px' }}>
+                <FormattedMessage {...messages.books} />
+              </h3>
+              {authorInfo.books &&
+                authorInfo.books.length > 0 &&
+                authorInfo.books.map((book) => (
+                  <div className="item-gallery" key={book.id}>
+                    <Link to={`/book/${book.id}`}>
+                      <img src={book.small_image_url} alt="" />
+                    </Link>
+                  </div>
+                ))}
+            </div>
+          </article>
+        </aside>
+        <aside className="col-sm-7">
+          <article className="card-body p-5">
+            <h3 className="title mb-3">{authorInfo.name}</h3>
+            <dl className="item-property">
+              <dt>
+                <FormattedMessage {...messages.about} />
+              </dt>
+              <dd>
+                <p
+                  dangerouslySetInnerHTML={{
+                    __html: authorInfo.about,
+                  }}
+                />
+              </dd>
+            </dl>
+            <dl className="param param-feature">
+              <dt>
+                <FormattedMessage {...messages.gender} />
+              </dt>
+              <dd>{authorInfo.gender}</dd>
+            </dl>
+            <dl className="param param-feature">
+              <dt>
+                <FormattedMessage {...messages.born} />
+              </dt>
+              <dd>{authorInfo.born_at}</dd>
+            </dl>
+            <dl className="param param-feature">
+              <dt>
+                <FormattedMessage {...messages.died} />
+              </dt>
+              <dd>{authorInfo.died_at}</dd>
+            </dl>
+            <dl className="param param-feature">
+              <dt>
+                <FormattedMessage {...messages.hometown} />
+              </dt>
+              <dd>{authorInfo.hometown}</dd>
+            </dl>
+            <dl className="param param-feature">
+              <dt>
+                <FormattedMessage {...messages.followers} />
+              </dt>
+              <dd>{authorInfo.author_followers_count}</dd>
+            </dl>
+            <dl className="param param-feature">
+              <dt>
+                <FormattedMessage {...messages.fans} />
+              </dt>
+              <dd>{authorInfo.fans_count}</dd>
+            </dl>
+            <hr />
+          </article>
+        </aside>
+      </div>
+    </div>
+  ) : (
+    <></>
   );
 }
 

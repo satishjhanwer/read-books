@@ -12,8 +12,8 @@ import { compose } from 'redux';
 import { FormattedMessage } from 'react-intl';
 import { createStructuredSelector } from 'reselect';
 
-import { useInjectReducer } from 'utils/injectReducer';
-import { useInjectSaga } from 'utils/injectSaga';
+import { useInjectReducer } from '../../utils/injectReducer';
+import { useInjectSaga } from '../../utils/injectSaga';
 
 import { makeSelectBookInfo } from './selectors';
 import reducer from './reducer';
@@ -39,84 +39,80 @@ export function BookDetails({
       fetchBookInfo(id);
     }
   }, []);
-  return (
-    <React.Fragment>
-      {bookObj && (
-        <React.Fragment>
-          <div className="card">
-            <div className="row">
-              <aside className="col-sm-5 border-right">
-                <article className="gallery-wrap">
-                  <div className="img-big-wrap">
-                    <img src={bookObj.image_url} alt="" />
-                  </div>
-                </article>
-              </aside>
-              <aside className="col-sm-7">
-                <article className="card-body p-5">
-                  <h3 className="title mb-3">{bookObj.title}</h3>
-                  <p className="price-detail-wrap">
-                    <span>
-                      <FormattedMessage {...messages.by} />
-                      <Link to={`/author/${bookObj.author.id}`}>{bookObj.author.name}</Link>
-                    </span>
-                  </p>
-                  <dl className="item-property">
-                    <dt>
-                      <FormattedMessage {...messages.description} />
-                    </dt>
-                    <dd>
-                      <p
-                        dangerouslySetInnerHTML={{
-                          __html: bookObj.description,
-                        }}
-                      />
-                    </dd>
-                  </dl>
-                  <dl className="param param-feature">
-                    <dt>
-                      <FormattedMessage {...messages.isbn} />
-                    </dt>
-                    <dd>{bookObj.isbn}</dd>
-                  </dl>
-                  <dl className="param param-feature">
-                    <dt>
-                      <FormattedMessage {...messages.publicationYear} />
-                    </dt>
-                    <dd>{bookObj.publication_year}</dd>
-                  </dl>
-                  <dl className="param param-feature">
-                    <dt>
-                      <FormattedMessage {...messages.publisher} />
-                    </dt>
-                    <dd>{bookObj.publisher}</dd>
-                  </dl>
-                  <dl className="param param-feature">
-                    <dt>
-                      <FormattedMessage {...messages.format} />
-                    </dt>
-                    <dd>{bookObj.format}</dd>
-                  </dl>
-                  <dl className="param param-feature">
-                    <dt>
-                      <FormattedMessage {...messages.rating} />
-                    </dt>
-                    <dd>{bookObj.text_reviews_count}</dd>
-                  </dl>
-                  <dl className="param param-feature">
-                    <dt>
-                      <FormattedMessage {...messages.rating} />
-                    </dt>
-                    <dd>{bookObj.average_rating}</dd>
-                  </dl>
-                  <hr />
-                </article>
-              </aside>
+  return bookObj ? (
+    <div className="card">
+      <div className="row">
+        <aside className="col-sm-5 border-right">
+          <article className="gallery-wrap">
+            <div className="img-big-wrap">
+              <img src={bookObj.image_url} alt="" />
             </div>
-          </div>
-        </React.Fragment>
-      )}
-    </React.Fragment>
+          </article>
+        </aside>
+        <aside className="col-sm-7">
+          <article className="card-body p-5">
+            <h3 className="title mb-3">{bookObj.title}</h3>
+            <p className="price-detail-wrap">
+              <span>
+                <FormattedMessage {...messages.by} />
+                <Link to={`/author/${bookObj.author.id}`}>{bookObj.author.name}</Link>
+              </span>
+            </p>
+            <dl className="item-property">
+              <dt>
+                <FormattedMessage {...messages.description} />
+              </dt>
+              <dd>
+                <p
+                  dangerouslySetInnerHTML={{
+                    __html: bookObj.description,
+                  }}
+                />
+              </dd>
+            </dl>
+            <dl className="param param-feature">
+              <dt>
+                <FormattedMessage {...messages.isbn} />
+              </dt>
+              <dd>{bookObj.isbn}</dd>
+            </dl>
+            <dl className="param param-feature">
+              <dt>
+                <FormattedMessage {...messages.publicationYear} />
+              </dt>
+              <dd>{bookObj.publication_year}</dd>
+            </dl>
+            <dl className="param param-feature">
+              <dt>
+                <FormattedMessage {...messages.publisher} />
+              </dt>
+              <dd>{bookObj.publisher}</dd>
+            </dl>
+            <dl className="param param-feature">
+              <dt>
+                <FormattedMessage {...messages.format} />
+              </dt>
+              <dd>{bookObj.format}</dd>
+            </dl>
+            <dl className="param param-feature">
+              <dt>
+                <FormattedMessage {...messages.rating} />
+              </dt>
+              <dd>{bookObj.text_reviews_count}</dd>
+            </dl>
+            <dl className="param param-feature">
+              <dt>
+                <FormattedMessage {...messages.rating} />
+              </dt>
+              <dd>{bookObj.average_rating}</dd>
+            </dl>
+            <hr />
+          </article>
+        </aside>
+      </div>
+    </div>
+  ) : (
+    <></>
   );
 }
 

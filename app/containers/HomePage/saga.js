@@ -1,5 +1,5 @@
-import request from 'utils/request';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
+import request from '../../utils/request';
 import { BOOK_SEARCH_REQUEST } from './constants';
 import { makeSelectSearchTerm } from './selectors';
 import { requestBookSearchFailure, requestBookSearchSuccess } from './actions';
