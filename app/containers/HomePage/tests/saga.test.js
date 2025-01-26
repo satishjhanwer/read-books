@@ -11,8 +11,6 @@ describe('homePageData Saga', () => {
 
   it('should start task to watch for BOOK_SEARCH_REQUEST action', () => {
     const takeLatestDescriptor = homePageSaga.next().value;
-    expect(takeLatestDescriptor).toEqual(
-      takeLatest(BOOK_SEARCH_REQUEST, GetBookSearch),
-    );
+    expect(takeLatestDescriptor).toEqual(takeLatest(BOOK_SEARCH_REQUEST, GetBookSearch));
   });
 });

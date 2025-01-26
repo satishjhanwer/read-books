@@ -23,10 +23,7 @@ export default function App() {
   return (
     <React.Fragment>
       <Helmet titleTemplate="%s - Search Books" defaultTitle="Search Books">
-        <meta
-          name="description"
-          content="A React.js application for searching books"
-        />
+        <meta name="description" content="A React.js application for searching books" />
       </Helmet>
       <Navigation />
       <Container>

@@ -2,10 +2,13 @@
 coverage
 node_modules
 stats.json
+build
+dist
+output
 
 # Cruft
 .DS_Store
 npm-debug.log
+.history
 .idea
-
-package-lock.json
+.vscode

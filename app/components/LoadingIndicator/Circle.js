@@ -14,7 +14,7 @@ const circleFadeDelay = keyframes`
   }
 `;
 
-const Circle = props => {
+const Circle = (props) => {
   const { rotate, delay } = props;
   const CirclePrimitive = styled.div`
     width: 100%;
@@ -23,7 +23,7 @@ const Circle = props => {
     left: 0;
     top: 0;
     ${rotate &&
-      `
+    `
       -webkit-transform: rotate(${rotate}deg);
       -ms-transform: rotate(${rotate}deg);
       transform: rotate(${rotate}deg);
@@ -37,7 +37,7 @@ const Circle = props => {
       border-radius: 100%;
       animation: ${circleFadeDelay} 1.2s infinite ease-in-out both;
       ${delay &&
-        `
+      `
         -webkit-animation-delay: ${delay}s;
         animation-delay: ${delay}s;
       `};

@@ -55,7 +55,7 @@ export function AuthorDetails({
                       <FormattedMessage {...messages.books} />
                     </h3>
                     {authorInfo.books && authorInfo.books.length > 0 ? (
-                      authorInfo.books.map(book => (
+                      authorInfo.books.map((book) => (
                         <div className="item-gallery" key={book.id}>
                           <Link to={`/book/${book.id}`}>
                             <img src={book.small_image_url} alt="" />
@@ -142,16 +142,10 @@ const mapStateToProps = createStructuredSelector({
 
 function mapDispatchToProps(dispatch) {
   return {
-    fetchAuthorInfo: id => dispatch(authorInfoRequest(id)),
+    fetchAuthorInfo: (id) => dispatch(authorInfoRequest(id)),
   };
 }
 
-const withConnect = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
+const withConnect = connect(mapStateToProps, mapDispatchToProps);
 
-export default compose(
-  withConnect,
-  memo,
-)(AuthorDetails);
+export default compose(withConnect, memo)(AuthorDetails);

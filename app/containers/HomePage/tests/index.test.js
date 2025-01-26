@@ -37,11 +37,7 @@ describe('<HomePage />', () => {
     render(
       <Provider store={store}>
         <IntlProvider locale="en">
-          <HomePage
-            searchTerm="Not Empty"
-            onChangeSearchTerm={() => {}}
-            onSubmitForm={submitSpy}
-          />
+          <HomePage searchTerm="Not Empty" onChangeSearchTerm={() => {}} onSubmitForm={submitSpy} />
         </IntlProvider>
       </Provider>,
     );

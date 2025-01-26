@@ -58,9 +58,7 @@ export function BookDetails({
                   <p className="price-detail-wrap">
                     <span>
                       <FormattedMessage {...messages.by} />
-                      <Link to={`/author/${bookObj.author.id}`}>
-                        {bookObj.author.name}
-                      </Link>
+                      <Link to={`/author/${bookObj.author.id}`}>{bookObj.author.name}</Link>
                     </span>
                   </p>
                   <dl className="item-property">
@@ -133,15 +131,9 @@ const mapStateToProps = createStructuredSelector({
 });
 
 function mapDispatchToProps(dispatch) {
-  return { fetchBookInfo: id => dispatch(requestBookInfo(id)) };
+  return { fetchBookInfo: (id) => dispatch(requestBookInfo(id)) };
 }
 
-const withConnect = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
+const withConnect = connect(mapStateToProps, mapDispatchToProps);
 
-export default compose(
-  withConnect,
-  memo,
-)(BookDetails);
+export default compose(withConnect, memo)(BookDetails);

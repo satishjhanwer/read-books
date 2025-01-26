@@ -10,7 +10,7 @@ const baseOptions = {
 };
 const goodReadRouter = express.Router();
 
-const extractsGoodReadResponse = goodReadsResult => {
+const extractsGoodReadResponse = (goodReadsResult) => {
   const {
     GoodreadsResponse: {
       search: [
@@ -50,7 +50,7 @@ const convertListToObject = (EXCLUDE_LIST, resObj) =>
     return { ...output, ...res };
   }, {});
 
-const extractBookResponse = goodReadsResult => {
+const extractBookResponse = (goodReadsResult) => {
   const {
     GoodreadsResponse: {
       book: [book],
@@ -69,7 +69,7 @@ const extractBookResponse = goodReadsResult => {
   return { ...bookDetails, author: authorInfo };
 };
 
-const extractAuthorResponse = goodReadsResult => {
+const extractAuthorResponse = (goodReadsResult) => {
   const EXCLUDE_LIST = ['books'];
   const {
     GoodreadsResponse: {
@@ -83,9 +83,7 @@ const extractAuthorResponse = goodReadsResult => {
     books: [{ book: bookList }],
   } = authorObj;
 
-  const books = bookList.map(book =>
-    convertListToObject(BOOK_EXCLUDE_LIST, book),
-  );
+  const books = bookList.map((book) => convertListToObject(BOOK_EXCLUDE_LIST, book));
   return { ...author, books };
 };
 
@@ -93,14 +91,12 @@ goodReadRouter.route('/search').get((req, res) => {
   const { query } = req;
   const options = { ...baseOptions, url: '/search/index.xml' };
   options.qs = { ...options.qs, ...query };
-  rp(options).then(result => {
+  rp(options).then((result) => {
     xml2js.parseString(result, (er, goodReadsResult) => {
       if (er) {
-        return res
-          .status(500)
-          .send('Something got broke, We are working on it.');
+        return res.status(500).send('Something got broke, We are working on it.');
       }
-      const books = extractsGoodReadResponse(goodReadsResult).map(work => ({
+      const books = extractsGoodReadResponse(goodReadsResult).map((work) => ({
         bookId: work.best_book[0].id[0]._,
         title: work.best_book[0].title[0],
         authorName: work.best_book[0].author[0].name[0],
@@ -121,12 +117,10 @@ goodReadRouter.route('/book/:id').get((req, res) => {
   } = req;
   const options = { ...baseOptions, url: '/book/show.xml' };
   options.qs = { ...options.qs, id };
-  rp(options).then(result => {
+  rp(options).then((result) => {
     xml2js.parseString(result, (er, goodReadsResult) => {
       if (er) {
-        return res
-          .status(500)
-          .send('Something got broke, We are working on it.');
+        return res.status(500).send('Something got broke, We are working on it.');
       }
       return res.status(200).json(extractBookResponse(goodReadsResult));
     });
@@ -139,12 +133,10 @@ goodReadRouter.route('/author/:id').get((req, res) => {
   } = req;
   const options = { ...baseOptions, url: '/author/show.xml' };
   options.qs = { ...options.qs, id };
-  rp(options).then(result => {
+  rp(options).then((result) => {
     xml2js.parseString(result, (er, goodReadsResult) => {
       if (er) {
-        return res
-          .status(500)
-          .send('Something got broke, We are working on it.');
+        return res.status(500).send('Something got broke, We are working on it.');
       }
       return res.status(200).json(extractAuthorResponse(goodReadsResult));
     });

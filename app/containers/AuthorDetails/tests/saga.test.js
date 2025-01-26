@@ -11,8 +11,6 @@ describe('authorDetailsData Saga', () => {
 
   it('should start task to watch for BOOK_INFO_REQUEST action', () => {
     const takeLatestDescriptor = authorDetailsSaga.next().value;
-    expect(takeLatestDescriptor).toEqual(
-      takeLatest(AUTHOR_INFO_REQUEST, GetAuthorInfo),
-    );
+    expect(takeLatestDescriptor).toEqual(takeLatest(AUTHOR_INFO_REQUEST, GetAuthorInfo));
   });
 });

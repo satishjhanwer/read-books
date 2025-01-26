@@ -4,11 +4,7 @@
  *
  */
 
-import {
-  AUTHOR_INFO_REQUEST,
-  AUTHOR_INFO_SUCCESS,
-  AUTHOR_INFO_FAILURE,
-} from './constants';
+import { AUTHOR_INFO_REQUEST, AUTHOR_INFO_SUCCESS, AUTHOR_INFO_FAILURE } from './constants';
 
 /**
  *

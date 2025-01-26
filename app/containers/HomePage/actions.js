@@ -4,12 +4,7 @@
  *
  */
 
-import {
-  BOOK_SEARCH_REQUEST,
-  BOOK_SEARCH_SUCCESS,
-  BOOK_SEARCH_FAILURE,
-  CHANGE_SEARCH_TERM,
-} from './constants';
+import { BOOK_SEARCH_REQUEST, BOOK_SEARCH_SUCCESS, BOOK_SEARCH_FAILURE, CHANGE_SEARCH_TERM } from './constants';
 
 /**
  *

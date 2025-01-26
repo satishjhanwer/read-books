@@ -21,12 +21,10 @@ describe('authorDetailsReducer', () => {
 
   it('should handle the authorInfoRequest action correctly', () => {
     const fixture = '1234';
-    const expectedResult = produce(state, draft => {
+    const expectedResult = produce(state, (draft) => {
       draft.authorId = fixture;
     });
 
-    expect(authorDetailsReducer(state, authorInfoRequest(fixture))).toEqual(
-      expectedResult,
-    );
+    expect(authorDetailsReducer(state, authorInfoRequest(fixture))).toEqual(expectedResult);
   });
 });
