@@ -12,16 +12,10 @@ import { compose } from 'redux';
 import { FormattedMessage } from 'react-intl';
 import { createStructuredSelector } from 'reselect';
 
-import { useInjectReducer } from '../../utils/injectReducer';
-import { useInjectSaga } from '../../utils/injectSaga';
-
 import { makeSelectAuthorInfo } from './selectors';
-import reducer from './reducer';
-import saga from './saga';
+
 import messages from './messages';
 import { authorInfoRequest } from './actions';
-
-const key = 'authorDetails';
 
 export function AuthorDetails({
   match: {
@@ -30,9 +24,6 @@ export function AuthorDetails({
   authorInfo,
   fetchAuthorInfo,
 }) {
-  useInjectReducer({ key, reducer });
-  useInjectSaga({ key, saga });
-
   useEffect(() => {
     // Load the book details if the id is present in the url params
     if (id) {

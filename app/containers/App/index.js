@@ -31,7 +31,7 @@ export default function App() {
               <Route exact path="/" element={<HomePage />} />
               <Route path="/book/:id" element={<BookDetailPage />} />
               <Route path="/author/:id" element={<AuthorDetailPage />} />
-              <Route path="" element={<NotFoundPage />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Col>
         </Row>

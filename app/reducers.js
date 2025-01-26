@@ -7,6 +7,7 @@ import storage from 'reduxjs-toolkit-persist/lib/storage';
 
 // import globalReducer from 'containers/App/reducer';
 import languageProviderReducer from './containers/LanguageProvider/reducer';
+import homePageReducer from './containers/HomePage/slice';
 
 const persistConfig = {
   key: 'read-book-v1',
@@ -21,6 +22,7 @@ export default function createReducer(routerReducer) {
   const combinedReducer = combineReducers({
     language: languageProviderReducer,
     router: routerReducer,
+    home: homePageReducer,
   });
 
   const resetReducer = (state, action) => combinedReducer(action.type === 'LOGOUT_SUCCESS' ? undefined : state, action);
