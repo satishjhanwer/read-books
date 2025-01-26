@@ -39,6 +39,9 @@
     ]
   },
   "pre-commit": "lint:staged",
+  "resolutions": {
+    "cross-spawn": "7.0.6"
+  },
   "dependencies": {
     "@reduxjs/toolkit": "^2.5.0",
     "fontfaceobserver": "2.3.0",
