@@ -7,9 +7,10 @@ import { requestBookInfoFailure, requestBookInfoSuccess } from './actions';
 export function* GetBookInfo() {
   // Select username from store
   const bookId = yield select(makeSelectBookId());
-  const requestURL = `/api/book/${bookId}`;
+  const requestURL = `/api/book/works/${bookId}`;
   try {
     const book = yield call(request, requestURL);
+    console.log('boook------>', book);
     yield put(requestBookInfoSuccess(book));
   } catch (err) {
     yield put(requestBookInfoFailure(err));

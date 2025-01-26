@@ -1,50 +1,53 @@
-/*
- * HomePage
- *
- * This is the first thing users see of our App, at the '/' route
- */
-
-import React, { useEffect, memo } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { compose } from 'redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
-import { createStructuredSelector } from 'reselect';
 import { Row, Col, Input, Form, FormGroup, Label, Button } from 'reactstrap';
-
-import { useInjectReducer } from 'utils/injectReducer';
-import { useInjectSaga } from 'utils/injectSaga';
-import { makeSelectBookList, makeSelectSearchTerm, makeSelectErrorMessage } from './selectors';
-
-import { changeSearchTerm, requestBookSearch } from './actions';
-import reducer from './reducer';
-import saga from './saga';
+import { changeSearchTerm, requestBookSearchFailure, requestBookSearchSuccess } from './slice';
 import messages from './messages';
+import { requestBookSearch } from './flow';
 
-const key = 'home';
+// const getRatingStars = (rating) => {
+//   const rawRating = Math.round(rating);
+//   const stars = [];
+//   for (let i = 0; i < rawRating; i += 1) {
+//     stars.push(<span key={i} className="fa fa-star" />);
+//   }
+//   return stars;
+// };
 
-const getRatingStars = (rating) => {
-  const rawRating = Math.round(rating);
-  const stars = [];
-  for (let i = 0; i < rawRating; i += 1) {
-    stars.push(<span key={i} className="fa fa-star" />);
-  }
-  return stars;
-};
+const getBookISBN = (str) => str.replace('/works/', '');
 
-export function HomePage({ bookList, onSubmitForm, searchTerm, onChangeSearchTerm, errorMessage }) {
-  useInjectReducer({ key, reducer });
-  useInjectSaga({ key, saga });
+export function HomePage() {
+  const dispatch = useDispatch();
+  const [searchQuery, setSearchQuery] = useState('');
+  const { bookList, errorMessage } = useSelector(
+    ({ home: { bookList = [], errorMessage = undefined } = {} }) => ({
+      bookList,
+      errorMessage,
+    }),
+    shallowEqual,
+  );
 
-  useEffect(() => {
-    // When initial state searchTerm is not null, submit the form to load books
-    if (searchTerm && searchTerm.trim().length > 0) onSubmitForm();
-  }, []);
+  const onChangeSearchTerm = (evt) => {
+    setSearchQuery(evt.target.value);
+    dispatch(changeSearchTerm(evt.target.value));
+  };
+
+  const onSubmitForm = async (evt) => {
+    if (evt !== undefined && evt.preventDefault) evt.preventDefault();
+    try {
+      const { data = [] } = await requestBookSearch(searchQuery);
+      dispatch(requestBookSearchSuccess(data));
+    } catch (error) {
+      dispatch(requestBookSearchFailure(error));
+    }
+  };
 
   return (
-    <React.Fragment>
+    <>
       <Helmet>
         <title>Home Page</title>
         <meta name="description" content="A React.js application for searching books" />
@@ -62,7 +65,7 @@ export function HomePage({ bookList, onSubmitForm, searchTerm, onChangeSearchTer
                   placeholder="Search here for book name"
                   id="searchBook"
                   type="search"
-                  value={searchTerm}
+                  value={searchQuery}
                   onChange={onChangeSearchTerm}
                   required
                 />
@@ -95,12 +98,15 @@ export function HomePage({ bookList, onSubmitForm, searchTerm, onChangeSearchTer
                 <div className="space-ten" />
                 <div className="ratings">
                   <p>
-                    {getRatingStars(book.ratings)}({book.reviewCount} <FormattedMessage {...messages.reviews} />
+                    {book.editions}
+                    <FormattedMessage {...messages.reviews} />
+                    {book.languageCount}
+                    <FormattedMessage {...messages.language} />
                   </p>
                 </div>
                 <div className="space-ten" />
                 <div className="btn-ground text-center">
-                  <Link to={`/book/${book.bookId}`} key={book.bookId}>
+                  <Link to={`/book/${getBookISBN(book.bookId)}`} key={book.bookId}>
                     <i className="fa fa-search" /> <FormattedMessage {...messages.quickView} />
                   </Link>
                 </div>
@@ -109,37 +115,19 @@ export function HomePage({ bookList, onSubmitForm, searchTerm, onChangeSearchTer
             </Col>
           ))
         ) : (
-          <React.Fragment />
+          <></>
         )}
       </Row>
-    </React.Fragment>
+    </>
   );
 }
 
 HomePage.propTypes = {
   bookList: PropTypes.any,
+  onSubmitForm: PropTypes.func,
   searchTerm: PropTypes.string,
   errorMessage: PropTypes.string,
   onChangeSearchTerm: PropTypes.func,
-  onSubmitForm: PropTypes.func,
 };
 
-const mapStateToProps = createStructuredSelector({
-  searchTerm: makeSelectSearchTerm(),
-  errorMessage: makeSelectErrorMessage(),
-  bookList: makeSelectBookList(),
-});
-
-export function mapDispatchToProps(dispatch) {
-  return {
-    onChangeSearchTerm: (evt) => dispatch(changeSearchTerm(evt.target.value)),
-    onSubmitForm: (evt) => {
-      if (evt !== undefined && evt.preventDefault) evt.preventDefault();
-      dispatch(requestBookSearch());
-    },
-  };
-}
-
-const withConnect = connect(mapStateToProps, mapDispatchToProps);
-
-export default compose(withConnect, memo)(HomePage);
+export default HomePage;
