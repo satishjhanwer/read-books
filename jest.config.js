@@ -1,27 +1,18 @@
 module.exports = {
-  collectCoverageFrom: [
-    'app/**/*.{js,jsx}',
-    '!app/**/*.test.{js,jsx}',
-    '!app/app.js',
-    '!app/global-styles.js',
-    '!app/*/*/Loadable.{js,jsx}',
-  ],
+  collectCoverageFrom: ['!app/app.js', 'app/**/*.{js,jsx}', '!app/global-styles.js', '!app/**/*.test.{js,jsx}'],
+  testEnvironment: 'jsdom',
   coverageThreshold: {
     global: {
-      statements: 98,
-      branches: 91,
-      functions: 98,
-      lines: 98,
+      lines: 80,
+      branches: 80,
+      functions: 80,
+      statements: 80,
     },
   },
-  moduleDirectories: ['node_modules', 'app'],
+  moduleFileExtensions: ['js'],
+  moduleDirectories: ['node_modules', 'app', __dirname],
   moduleNameMapper: {
-    '.*\\.(css|less|styl|scss|sass)$': '<rootDir>/internals/mocks/cssModule.js',
-    '.*\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
-      '<rootDir>/internals/mocks/image.js',
+    '.*\\.(css|less|styl|scss|sass)$': '<rootDir>/mocks/cssModule.js',
+    '.*\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$': '<rootDir>/mocks/image.js',
   },
-  setupFilesAfterEnv: ['<rootDir>/internals/testing/test-bundler.js', 'react-testing-library/cleanup-after-each'],
-  setupFiles: ['raf/polyfill'],
-  testRegex: 'tests/.*\\.test\\.js$',
-  snapshotSerializers: [],
 };

@@ -13,7 +13,6 @@ export const initialState = {
   authorInfo: undefined,
 };
 
- 
 const authorDetailsReducer = (state = initialState, action) =>
   produce(state, (draft) => {
     switch (action.type) {
