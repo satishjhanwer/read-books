@@ -82,6 +82,27 @@ test('save books to the reading list and manage them', async ({ page, checkA11y 
   expect((await download).suggestedFilename()).toMatch(/^read-books-list-\d{4}-\d{2}-\d{2}\.json$/);
 });
 
+test('filter books by subject, sort and year, then search authors', async ({ page, checkA11y }) => {
+  await page.goto('book/OL27482W');
+  await page.getByRole('link', { name: 'Fantasy' }).click();
+  await expect(page).toHaveURL(/\?subject=Fantasy$/);
+  await expect(page.getByText('461 books about “Fantasy”')).toBeVisible();
+
+  await page.getByRole('combobox', { name: 'Sort by' }).selectOption('rating');
+  await page.getByRole('textbox', { name: 'Published from (year)' }).fill('1930');
+  await expect(page).toHaveURL(/\?subject=Fantasy&sort=rating&from=1930$/);
+  await checkA11y();
+
+  await page.getByRole('link', { name: 'Authors' }).click();
+  await page.getByRole('searchbox').fill('tolkien');
+  await expect(page.getByText('29 authors for “tolkien”')).toBeVisible();
+  await expect(page).toHaveURL(/\?q=tolkien&type=authors$/);
+  await checkA11y();
+
+  await page.getByRole('link', { name: 'J.R.R. Tolkien' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'J.R.R. Tolkien' })).toBeVisible();
+});
+
 test.describe('dark mode', () => {
   test.use({ colorScheme: 'dark' });
 
@@ -95,7 +116,14 @@ test.describe('dark mode', () => {
         JSON.stringify([{ book, shelf: 'reading', addedAt: now, updatedAt: now }]),
       );
     });
-    for (const path of ['?q=the+hobbit', 'book/OL27482W', 'author/OL26320A', 'list']) {
+    for (const path of [
+      '?q=the+hobbit',
+      '?subject=Fantasy&sort=rating&from=1930',
+      '?q=tolkien&type=authors',
+      'book/OL27482W',
+      'author/OL26320A',
+      'list',
+    ]) {
       await page.goto(path);
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
       await expect(page.getByTestId(/skeleton/)).toHaveCount(0);

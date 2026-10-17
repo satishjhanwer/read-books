@@ -39,10 +39,10 @@ describe('BookPage', () => {
     const subjects = within(
       (await screen.findByRole('heading', { name: 'Subjects' })).closest('section') ?? document.body,
     );
-    expect(subjects.getByRole('link', { name: 'Fantasy' })).toHaveAttribute('href', '/?q=Fantasy');
+    expect(subjects.getByRole('link', { name: 'Fantasy' })).toHaveAttribute('href', '/?subject=Fantasy');
     expect(subjects.getByRole('link', { name: 'Battle of Five Armies' })).toHaveAttribute(
       'href',
-      '/?q=Battle%20of%20Five%20Armies',
+      '/?subject=Battle+of+Five+Armies',
     );
   });
 

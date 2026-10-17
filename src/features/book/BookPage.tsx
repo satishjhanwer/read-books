@@ -13,6 +13,7 @@ import { PageTitle } from '../../components/PageTitle';
 import { RatingStars } from '../../components/RatingStars';
 import { ShelfSelect } from '../reading-list/ShelfSelect';
 import { toBookSummary } from '../reading-list/useReadingList';
+import { subjectSearchUrl } from '../search/searchState';
 import { useBook } from './useBook';
 
 const MAX_SUBJECTS = 15;
@@ -93,7 +94,7 @@ export default function BookPage() {
               {subjects.map((subject) => (
                 <li key={subject}>
                   <Link
-                    to={{ pathname: '/', search: `?q=${encodeURIComponent(subject)}` }}
+                    to={subjectSearchUrl(subject)}
                     className="block rounded-full border border-slate-300 px-3 py-1 text-sm hover:border-indigo-500 hover:text-indigo-600 dark:border-slate-700 dark:hover:text-indigo-400">
                     {subject}
                   </Link>

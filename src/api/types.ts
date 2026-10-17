@@ -56,3 +56,19 @@ export interface AuthorDetails {
   links: ExternalLink[];
   openLibraryUrl: string;
 }
+
+export interface AuthorSummary {
+  id: string;
+  name?: string;
+  birthDate?: string;
+  deathDate?: string;
+  topWork?: string;
+  workCount?: number;
+}
+
+export interface AuthorSearchPage {
+  authors: AuthorSummary[];
+  total: number;
+  page: number;
+  hasMore: boolean;
+}

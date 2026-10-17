@@ -3,13 +3,23 @@ import type * as z from 'zod/mini';
 import { keyToId, normalizeText } from '../lib/text';
 import {
   authorSchema,
+  authorSearchResponseSchema,
   ratingsSchema,
   recordMetaSchema,
   searchResponseSchema,
   workSchema,
   type SearchDoc,
 } from './schemas';
-import type { AuthorDetails, AuthorRef, BookDetails, BookPage, BookSummary, Rating } from './types';
+import type {
+  AuthorDetails,
+  AuthorRef,
+  AuthorSearchPage,
+  AuthorSummary,
+  BookDetails,
+  BookPage,
+  BookSummary,
+  Rating,
+} from './types';
 
 export const OPEN_LIBRARY_ORIGIN = 'https://openlibrary.org';
 export const COVERS_ORIGIN = 'https://covers.openlibrary.org';
@@ -26,6 +36,20 @@ const SEARCH_FIELDS = [
   'ratings_average',
   'ratings_count',
 ].join(',');
+
+const AUTHOR_SEARCH_FIELDS = ['key', 'name', 'birth_date', 'death_date', 'top_work', 'work_count'].join(',');
+
+export const BOOK_SORTS = ['rating', 'new', 'old'] as const;
+export type BookSort = (typeof BOOK_SORTS)[number];
+
+export interface BookSearchParams {
+  query?: string;
+  subject?: string;
+  /** Omitted = relevance. */
+  sort?: BookSort;
+  yearFrom?: number;
+  yearTo?: number;
+}
 
 const WORK_ID = /^OL\d+W$/;
 const AUTHOR_ID = /^OL\d+A$/;
@@ -133,9 +157,48 @@ async function search(params: Record<string, string>, page: number, signal?: Abo
   };
 }
 
-/** Full-text book search. `page` is 1-based. */
-export function searchBooks(query: string, page = 1, signal?: AbortSignal): Promise<BookPage> {
-  return search({ q: query.trim() }, page, signal);
+/** Book search; needs a query and/or a subject. `page` is 1-based. */
+export function searchBooks(params: BookSearchParams, page = 1, signal?: AbortSignal): Promise<BookPage> {
+  const { query = '', subject, sort, yearFrom, yearTo } = params;
+  // The year range only works as query syntax; Open Library returns 500 for it as a separate parameter.
+  const years =
+    yearFrom !== undefined || yearTo !== undefined
+      ? `first_publish_year:[${yearFrom === undefined ? '*' : String(yearFrom)} TO ${yearTo === undefined ? '*' : String(yearTo)}]`
+      : '';
+  const q = [query.trim(), years].filter(Boolean).join(' ');
+
+  const request: Record<string, string> = {};
+  if (q) request.q = q;
+  if (subject?.trim()) request.subject = subject.trim();
+  if (sort) request.sort = sort;
+  return search(request, page, signal);
+}
+
+/** Author search, most prolific first (relevance order ranks e.g. J.R.R. Tolkien below lesser-known Tolkiens). */
+export async function searchAuthors(query: string, page = 1, signal?: AbortSignal): Promise<AuthorSearchPage> {
+  const request = new URLSearchParams({
+    q: query.trim(),
+    sort: 'work_count desc',
+    page: String(page),
+    limit: String(PAGE_SIZE),
+    fields: AUTHOR_SEARCH_FIELDS,
+  });
+  const data = await fetchJson(`/search/authors.json?${request.toString()}`, authorSearchResponseSchema, signal);
+  return {
+    authors: data.docs
+      .map((doc): AuthorSummary => ({
+        id: keyToId(doc.key),
+        name: doc.name,
+        birthDate: doc.birth_date,
+        deathDate: doc.death_date,
+        topWork: doc.top_work,
+        workCount: doc.work_count,
+      }))
+      .filter((author) => AUTHOR_ID.test(author.id)),
+    total: data.numFound,
+    page,
+    hasMore: data.start + data.docs.length < data.numFound,
+  };
 }
 
 /** An author's books, most-published first. */
@@ -205,6 +268,14 @@ export function coverUrl(coverId: number, size: ImageSize = 'M'): string {
 
 export function authorPhotoUrl(photoId: number, size: ImageSize = 'M'): string {
   return `${COVERS_ORIGIN}/a/id/${String(photoId)}-${size}.jpg`;
+}
+
+/**
+ * Author photo by author id, for search results (which carry no photo ids).
+ * `default=false` makes a missing photo a 404 instead of a blank image, so `<Cover>` falls back.
+ */
+export function authorPhotoUrlById(authorId: string, size: ImageSize = 'M'): string {
+  return `${COVERS_ORIGIN}/a/olid/${authorId}-${size}.jpg?default=false`;
 }
 
 /** Rejects malformed IDs from the URL before they reach a request path. */

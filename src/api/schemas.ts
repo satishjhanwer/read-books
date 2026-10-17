@@ -63,3 +63,18 @@ export const recordMetaSchema = z.object({
   type: z.optional(z.object({ key: z.string() })),
   location: z.optional(z.string()),
 });
+
+export const authorSearchResponseSchema = z.object({
+  numFound: z.number(),
+  start: z.number(),
+  docs: z.array(
+    z.object({
+      key: z.string(),
+      name: z.optional(z.string()),
+      birth_date: z.optional(z.string()),
+      death_date: z.optional(z.string()),
+      top_work: z.optional(z.string()),
+      work_count: z.optional(z.number()),
+    }),
+  ),
+});

@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw';
 
+import authorSearch from '../test/fixtures/author-search.json';
 import author from '../test/fixtures/author.json';
 import ratings from '../test/fixtures/ratings.json';
 import work from '../test/fixtures/work.json';
@@ -9,11 +10,13 @@ import {
   OPEN_LIBRARY_ORIGIN,
   PAGE_SIZE,
   authorPhotoUrl,
+  authorPhotoUrlById,
   coverUrl,
   getAuthor,
   getAuthorBooks,
   getBook,
   isNotFound,
+  searchAuthors,
   searchBooks,
 } from './openLibrary';
 
@@ -30,7 +33,7 @@ const captureSearchParams = () => {
 
 describe('searchBooks', () => {
   it('maps search docs to book summaries', async () => {
-    const result = await searchBooks('the hobbit');
+    const result = await searchBooks({ query: 'the hobbit' });
 
     expect(result.total).toBe(461);
     expect(result.page).toBe(1);
@@ -50,7 +53,7 @@ describe('searchBooks', () => {
   it('sends the trimmed query, page, page size and field list', async () => {
     const captured = captureSearchParams();
 
-    await searchBooks('  dune  ', 3);
+    await searchBooks({ query: '  dune  ' }, 3);
 
     expect(captured.params?.get('q')).toBe('dune');
     expect(captured.params?.get('page')).toBe('3');
@@ -65,7 +68,7 @@ describe('searchBooks', () => {
       ),
     );
 
-    const { books, hasMore } = await searchBooks('bare');
+    const { books, hasMore } = await searchBooks({ query: 'bare' });
 
     expect(books[0]).toEqual({ id: 'OL1W', title: 'Bare', authors: [] });
     expect(hasMore).toBe(false);
@@ -75,19 +78,95 @@ describe('searchBooks', () => {
     const controller = new AbortController();
     controller.abort();
 
-    await expect(searchBooks('x', 1, controller.signal)).rejects.toMatchObject({ name: 'AbortError' });
+    await expect(searchBooks({ query: 'x' }, 1, controller.signal)).rejects.toMatchObject({ name: 'AbortError' });
   });
 
   it('throws ApiError on HTTP errors', async () => {
     server.use(http.get(`${OPEN_LIBRARY_ORIGIN}/search.json`, () => new HttpResponse(null, { status: 503 })));
 
-    await expect(searchBooks('x')).rejects.toMatchObject({ name: 'ApiError', status: 503 });
+    await expect(searchBooks({ query: 'x' })).rejects.toMatchObject({ name: 'ApiError', status: 503 });
   });
 
   it('throws ApiError when the response does not match the schema', async () => {
     server.use(http.get(`${OPEN_LIBRARY_ORIGIN}/search.json`, () => HttpResponse.json({ docs: 'nope' })));
 
-    await expect(searchBooks('x')).rejects.toMatchObject({ status: 502 });
+    await expect(searchBooks({ query: 'x' })).rejects.toMatchObject({ status: 502 });
+  });
+});
+
+describe('searchBooks filters', () => {
+  it('sends subject as its own parameter and omits q when there is no query', async () => {
+    const captured = captureSearchParams();
+
+    await searchBooks({ subject: ' Fantasy ' });
+
+    expect(captured.params?.get('subject')).toBe('Fantasy');
+    expect(captured.params?.has('q')).toBe(false);
+    expect(captured.params?.has('sort')).toBe(false);
+  });
+
+  it('sends the sort order', async () => {
+    const captured = captureSearchParams();
+
+    await searchBooks({ query: 'dune', sort: 'rating' });
+
+    expect(captured.params?.get('q')).toBe('dune');
+    expect(captured.params?.get('sort')).toBe('rating');
+  });
+
+  it('adds the year range to q, since Open Library rejects it as a parameter', async () => {
+    const captured = captureSearchParams();
+
+    await searchBooks({ query: 'dune', yearFrom: 1960, yearTo: 1970 });
+    expect(captured.params?.get('q')).toBe('dune first_publish_year:[1960 TO 1970]');
+    expect(captured.params?.has('first_publish_year')).toBe(false);
+
+    await searchBooks({ query: 'dune', yearFrom: 2000 });
+    expect(captured.params?.get('q')).toBe('dune first_publish_year:[2000 TO *]');
+
+    await searchBooks({ subject: 'Fantasy', yearTo: 1950 });
+    expect(captured.params?.get('q')).toBe('first_publish_year:[* TO 1950]');
+  });
+});
+
+describe('searchAuthors', () => {
+  it('maps author search results, most prolific first', async () => {
+    const captured: { params?: URLSearchParams } = {};
+    server.use(
+      http.get(`${OPEN_LIBRARY_ORIGIN}/search/authors.json`, ({ request }) => {
+        captured.params = new URL(request.url).searchParams;
+        return HttpResponse.json(authorSearch);
+      }),
+    );
+
+    const result = await searchAuthors('  tolkien ', 2);
+
+    expect(captured.params?.get('q')).toBe('tolkien');
+    expect(captured.params?.get('sort')).toBe('work_count desc');
+    expect(captured.params?.get('page')).toBe('2');
+    expect(result.total).toBe(29);
+    expect(result.hasMore).toBe(true);
+    expect(result.authors[0]).toEqual({
+      id: 'OL26320A',
+      name: 'J.R.R. Tolkien',
+      birthDate: '3 January 1892',
+      deathDate: '2 September 1973',
+      topWork: 'The Hobbit',
+      workCount: 346,
+    });
+    expect(result.authors[2]).toEqual({ id: 'OL14431239A', name: 'F. Tolkien', topWork: 'Thug Life', workCount: 21 });
+  });
+
+  it('accepts /authors/ keys and drops malformed ones', async () => {
+    server.use(
+      http.get(`${OPEN_LIBRARY_ORIGIN}/search/authors.json`, () =>
+        HttpResponse.json({ numFound: 2, start: 0, docs: [{ key: '/authors/OL1A', name: 'A' }, { key: 'nope' }] }),
+      ),
+    );
+
+    const { authors } = await searchAuthors('a');
+
+    expect(authors).toEqual([{ id: 'OL1A', name: 'A' }]);
   });
 });
 
@@ -276,6 +355,7 @@ describe('getAuthor', () => {
 
 describe('image urls', () => {
   it('builds cover and author photo urls', () => {
+    expect(authorPhotoUrlById('OL26320A')).toBe('https://covers.openlibrary.org/a/olid/OL26320A-M.jpg?default=false');
     expect(coverUrl(14627509)).toBe('https://covers.openlibrary.org/b/id/14627509-M.jpg');
     expect(coverUrl(1, 'L')).toBe('https://covers.openlibrary.org/b/id/1-L.jpg');
     expect(authorPhotoUrl(6155606, 'S')).toBe('https://covers.openlibrary.org/a/id/6155606-S.jpg');
