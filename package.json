@@ -93,7 +93,7 @@
     "circular-dependency-plugin": "5.2.2",
     "colors": "^1.4.0",
     "compare-versions": "6.1.1",
-    "compression": "1.7.5",
+    "compression": "1.8.2",
     "compression-webpack-plugin": "11.1.0",
     "cross-env": "7.0.3",
     "css-loader": "7.1.2",
