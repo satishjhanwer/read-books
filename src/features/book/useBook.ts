@@ -1,6 +1,6 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { getBook } from '../../api/openLibrary';
+import { getBook, getEditions } from '../../api/openLibrary';
 
 export function useBook(workId: string) {
   const queryClient = useQueryClient();
@@ -12,5 +12,14 @@ export function useBook(workId: string) {
       if (book.id !== workId) queryClient.setQueryData(['book', book.id], book);
       return book;
     },
+  });
+}
+
+export function useEditions(workId: string) {
+  return useInfiniteQuery({
+    queryKey: ['book', workId, 'editions'],
+    queryFn: ({ pageParam, signal }) => getEditions(workId, pageParam, signal),
+    initialPageParam: 1,
+    getNextPageParam: (last) => (last.hasMore ? last.page + 1 : undefined),
   });
 }

@@ -31,17 +31,20 @@ CI (`.github/workflows/ci.yml`) has two jobs that must both pass: `check` (forma
 
 ```text
 src/api/         Open Library client (openLibrary.ts), Zod schemas, app-level types
-src/features/    search/, book/, author/: one page component plus its TanStack Query hooks each;
+src/features/    search/, book/, author/: one page component plus its TanStack Query hooks each
+                 (book/ also has RatingBreakdown, Editions, MoreByAuthor);
                  reading-list/: localStorage store, hooks, SaveButton, ShelfSelect, /list page
-src/components/  shared UI: Layout, BookCard/BookGrid, Cover, RatingStars, Markdown, LoadMore, error/404 pages
-src/i18n/        en.json / de.json catalogs, LocaleProvider, typed message ids
-src/lib/         queryClient, text helpers, uniqueBooks
+src/components/  shared UI: Layout, BookCard/BookGrid, Cover, RatingStars, Markdown, LoadMore, ThemeSwitcher,
+                 OfflineBanner, error/404 pages
+src/i18n/        en/de/es/fr catalogs, LocaleProvider, typed message ids
+src/lib/         queryClient (+ persistence options), theme store, text helpers, uniqueBooks
+public/          favicon.svg and the PWA icons (PNGs rendered from it)
 src/test/        MSW server/handlers, JSON fixtures, renderApp helper
 e2e/             Playwright specs + fixtures (mocked Open Library, axe checks)
 scripts/         serve-pages.mjs (GitHub Pages simulator for e2e)
 ```
 
-`main.tsx` nests the providers as `QueryClientProvider` → `LocaleProvider` → `RouterProvider`. `src/test/render.tsx` mirrors that order.
+`main.tsx` calls `initTheme()`, then nests the providers as `PersistQueryClientProvider` → `LocaleProvider` → `RouterProvider`. `src/test/render.tsx` mirrors that order with a plain `QueryClientProvider` (nothing is persisted in tests).
 
 ## Architecture
 
@@ -50,13 +53,19 @@ scripts/         serve-pages.mjs (GitHub Pages simulator for e2e)
   - Route IDs are checked against `OL\d+W` / `OL\d+A` before any request. Invalid IDs throw `ApiError` with status 404 (check with `isNotFound`).
   - An author's books come from `search.json?author=…&sort=editions`, not `/authors/{id}/works.json`, which lists obscure items first and has no covers.
   - `searchBooks(params)` sends `subject` as its own parameter and `sort` as-is. The year range goes inside `q` as `first_publish_year:[from TO to]`, because Open Library returns 500 when it's a separate parameter.
+  - `getBook` maps `ratings.json` `counts` to `ratingCounts` (1 to 5 stars, only when there are ratings). `getEditions` pages `/works/{id}/editions.json` with `limit`/`offset` (10 per page) and keeps MARC language codes (`eng`); the UI names them with `Intl.DisplayNames`.
   - `searchAuthors` uses `/search/authors.json` with `sort=work_count desc`; relevance order ranks lesser-known namesakes first. Author-search results have no photo IDs, so cards load photos with `authorPhotoUrlById` (`/a/olid/{id}?default=false`, which returns 404 when there's no photo, so `<Cover>` falls back).
 - **Merged records:** Open Library merges duplicate works and authors and leaves a `/type/redirect` stub at the old ID.
   - `fetchRecord` follows these, up to 3 hops and only to valid `/works/…` or `/authors/…` paths, and treats `/type/delete` as 404.
   - `getBook` and `getAuthor` return the canonical `id`. `useBook` and `useAuthor` seed the query cache under that ID, and the page then does `<Navigate replace>` to it. So always compare `data.id` with the route param.
   - `getBook` re-fetches ratings for the canonical work, because the stub's ratings are empty.
 - **Best-effort parts:** in `getBook`, a failed ratings or author-name request doesn't fail the book. An author's name may be undefined (`AuthorRef.name?`). The UI shows the translated `book.unknownAuthor`, so never put English fallback text in `src/api`.
-- **Server state:** TanStack Query, configured in `src/lib/queryClient.ts`: 5-minute `staleTime`, no refetch on window focus, no retry on 404. Search and author books use `useInfiniteQuery` with a 1-based `page` param, flattened through `uniqueBooks` because Open Library pages can overlap.
+- **Server state:** TanStack Query, configured in `src/lib/queryClient.ts`: 5-minute `staleTime`, no refetch on window focus, no retry on 404. Search, author books and editions use `useInfiniteQuery` with a 1-based `page` param, deduplicated (`uniqueBooks`) because Open Library pages can overlap. The book page's "More by" section calls `useAuthorBooks`, so it shares the author page's cache entry.
+- **Offline / PWA:** `vite-plugin-pwa` (`generateSW`, `autoUpdate`, `clientsClaim`) in `vite.config.ts`.
+  - The service worker precaches the app shell, serves `index.html` for navigations, caches covers (`CacheFirst`, opaque responses allowed) and Open Library JSON (`NetworkFirst`).
+  - Successful queries are also persisted to localStorage (`read-books:query-cache`) for 24 hours, so `gcTime` is 24 hours too. Bump `buster` in `createPersistOptions` when the shapes in `src/api/types.ts` change.
+  - `OfflineBanner` reads `navigator.onLine` rather than TanStack's `onlineManager`, which assumes "online" until it sees an event.
+- **Theme:** `src/lib/theme.ts` is a small external store (`system` | `light` | `dark`, localStorage `read-books:theme`, no key = system). It toggles the `dark` class and `color-scheme` on `<html>`, follows OS changes in `system` mode, and syncs across tabs. An inline script in `index.html` applies the same logic before first paint; keep the two in sync.
 - **Search page:** the URL decides what gets searched, and the text box is local state.
   - `src/features/search/searchState.ts` parses and validates the URL (`q`, `type=authors`, `subject`, `sort`, `from`, `to`) and writes it back without defaults. The authors tab drops the book-only filters. Use `subjectSearchUrl` for subject links.
   - Typing is debounced by 400 ms. Enter commits immediately. Queries shorter than 2 characters never run. A book search runs with a query or a subject alone; an author search needs a query.
@@ -65,7 +74,8 @@ scripts/         serve-pages.mjs (GitHub Pages simulator for e2e)
   - When the URL changes from outside (back/forward, a suggestion or subject link), the input resets to match. This uses a render-time state adjustment, not an effect.
 - **Routing:** `src/routes.tsx` exports `routes` and `basename`. `Layout` is the root, with `errorElement: RouteError`. The book and author pages are `lazy` routes, which keeps react-markdown out of the first load. Vite `base` is `/read-books/`, and the router basename comes from `import.meta.env.BASE_URL`.
 - **i18n:** react-intl with flat catalogs.
-  - Message IDs are type-checked against `en.json` through the `FormatjsIntl` augmentation in `src/i18n/messages.ts`. `de.json` must have exactly the same keys, enforced by `satisfies` and a test, so add every new string to both files.
+  - Message IDs are type-checked against `en.json` through the `FormatjsIntl` augmentation in `src/i18n/messages.ts`. Every other catalog (`de`, `es`, `fr`) must have exactly the same keys, enforced by `satisfies` and a test that also parses each ICU message, so add every new string to all four files.
+  - To add a language: create `src/i18n/<code>.json`, then list it in `LOCALES`, `LOCALE_NAMES` (in its own language) and `MESSAGES`. The browser language picks it automatically on first visit.
   - The locale is stored in localStorage (`read-books:locale`) and mirrored to `<html lang>`.
 - **Untrusted text:** descriptions, bios, and links are user-edited on Open Library.
   - Render text through `components/Markdown.tsx` (react-markdown: no raw HTML, no images, safe URLs). Never use `dangerouslySetInnerHTML`.
@@ -82,11 +92,12 @@ scripts/         serve-pages.mjs (GitHub Pages simulator for e2e)
 - **Unit:** Vitest config lives in `vite.config.ts` and only collects `src/**/*.test.{ts,tsx}`, so `*.spec.ts` files are Playwright's.
   - `src/test/setup.ts` starts MSW with `onUnhandledRequest: 'error'`, so a request without a handler fails the test.
   - Default handlers serve trimmed real fixtures: The Hobbit `OL27482W` and Tolkien `OL26320A`, for any ID. Override a route per test with `server.use(...)`.
-  - The setup also stubs `window.scrollTo` and raises the async timeout to 3 s, because lazy route chunks are slow to transform on a cold run.
-  - After each test, the setup clears localStorage and calls the reading-list store's `resetForTests()`, because the store caches its snapshot at module level. Seed a list with `setShelf(...)` before rendering.
+  - The setup also stubs `window.scrollTo` and `window.matchMedia` (light OS theme; override with `vi.spyOn`). Lazy route chunks are slow to transform on a cold, busy run, so `findBy*` waits up to 10 s and tests time out at 15 s.
+  - After each test, the setup clears localStorage and calls `resetForTests()` on the reading-list store and the theme store, because both cache their state at module level. Seed a list with `setShelf(...)` before rendering.
 - **Page tests:** `renderApp(path)` renders the real route table in a memory router, with the app's own query client (retries off).
 - **E2E:**
-  - The `page` fixture in `e2e/fixtures.ts` serves Open Library from the same JSON fixtures and returns solid-colour SVGs for covers, so runs never hit the network.
+  - The `context` fixture in `e2e/fixtures.ts` serves Open Library from the same JSON fixtures and returns solid-colour SVGs for covers, so runs never hit the network. Routes are on the context so they also catch service worker requests.
+  - Service workers are blocked (`serviceWorkers: 'block'`) except in `e2e/pwa.spec.ts`, which checks the manifest and that a viewed book page still loads offline.
   - `checkA11y()` runs axe (WCAG 2.1 AA) and fails on any violation.
   - Specs run on desktop and on mobile (Pixel 7), plus a dark-mode pass.
   - They run against `scripts/serve-pages.mjs`, so deep links return HTTP 404 with the app shell, exactly as on GitHub Pages.
@@ -104,6 +115,6 @@ scripts/         serve-pages.mjs (GitHub Pages simulator for e2e)
 - TypeScript is strict, with `noUncheckedIndexedAccess` and `verbatimModuleSyntax`, so use `import type` for type-only imports. It's pinned to `~6.0` because typescript-eslint doesn't support TS 7 yet.
 - Use `zod/mini` (the functional API: `z.optional(z.string())`) rather than `zod`. The classic chained API doesn't tree-shake.
 - Bundle: `vite.config.ts` splits `react`, `router`, and an explicit `vendor` list (the libraries the first page needs) into long-lived chunks. Add a library to `vendor` only if the first page uses it. Lazy-only dependencies such as react-markdown would otherwise load on first paint.
-- Dark mode: secondary text uses `text-slate-500 dark:text-slate-400`. Plain `slate-500` fails contrast on the dark background, and the e2e axe check catches it.
+- Dark mode: `dark:` is class-based (`@custom-variant` in `src/index.css`), not the media query. Secondary text uses `text-slate-500 dark:text-slate-400`. Plain `slate-500` fails contrast on the dark background, and the e2e axe check catches it.
 - ESLint turns off `react-hooks/rules-of-hooks` for `e2e/`, because Playwright fixtures call `use()`.
 - Yarn quarantines very recent package releases (error `YN0016`). Use a looser range, such as `^1`, so Yarn picks an older version; don't disable the check.

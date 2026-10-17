@@ -4,6 +4,7 @@ import { OPEN_LIBRARY_ORIGIN } from '../api/openLibrary';
 import author from './fixtures/author.json';
 import authorBooks from './fixtures/author-books.json';
 import authorSearch from './fixtures/author-search.json';
+import editions from './fixtures/editions.json';
 import ratings from './fixtures/ratings.json';
 import search from './fixtures/search.json';
 import work from './fixtures/work.json';
@@ -19,5 +20,6 @@ export const handlers = [
   }),
   http.get(`${OPEN_LIBRARY_ORIGIN}/works/:id.json`, () => HttpResponse.json(work)),
   http.get(`${OPEN_LIBRARY_ORIGIN}/works/:id/ratings.json`, () => HttpResponse.json(ratings)),
+  http.get(`${OPEN_LIBRARY_ORIGIN}/works/:id/editions.json`, () => HttpResponse.json(editions)),
   http.get(`${OPEN_LIBRARY_ORIGIN}/authors/:id.json`, () => HttpResponse.json(author)),
 ];

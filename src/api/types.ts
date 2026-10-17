@@ -42,8 +42,32 @@ export interface BookDetails {
   firstPublishDate?: string;
   coverId?: number;
   rating?: Rating;
+  /** Number of 1- to 5-star ratings (index 0 is one star). Only present when there are ratings. */
+  ratingCounts?: [number, number, number, number, number];
   links: ExternalLink[];
   openLibraryUrl: string;
+}
+
+export interface Edition {
+  id: string;
+  title?: string;
+  subtitle?: string;
+  publishers: string[];
+  publishDate?: string;
+  pages?: number;
+  format?: string;
+  isbn?: string;
+  /** MARC language codes such as `eng` or `ger`; `Intl.DisplayNames` turns them into names. */
+  languages: string[];
+  coverId?: number;
+  openLibraryUrl: string;
+}
+
+export interface EditionPage {
+  editions: Edition[];
+  total: number;
+  page: number;
+  hasMore: boolean;
 }
 
 export interface AuthorDetails {

@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 
 import { OPEN_LIBRARY_ORIGIN } from '../../api/openLibrary';
+import editions from '../../test/fixtures/editions.json';
 import { renderApp } from '../../test/render';
 import { server } from '../../test/server';
 
@@ -44,6 +45,95 @@ describe('BookPage', () => {
       'href',
       '/?subject=Battle+of+Five+Armies',
     );
+  });
+
+  it('shows the rating breakdown', async () => {
+    renderApp('/book/OL27482W');
+
+    const ratings = within(
+      (await screen.findByRole('heading', { name: 'Ratings' })).closest('section') ?? document.body,
+    );
+    const rows = ratings.getAllByRole('listitem');
+    expect(rows.map((row) => row.textContent)).toEqual([
+      '5 stars271 (54%)',
+      '4 stars155 (31%)',
+      '3 stars41 (8%)',
+      '2 stars18 (4%)',
+      '1 star16 (3%)',
+    ]);
+  });
+
+  it('shows other books by the author, without the current one', async () => {
+    renderApp('/book/OL27482W');
+
+    const more = within(
+      (await screen.findByRole('heading', { name: 'More by J.R.R. Tolkien' })).closest('section') ?? document.body,
+    );
+    expect(await more.findByRole('link', { name: /The Fellowship of the Ring/ })).toBeInTheDocument();
+    expect(more.queryByRole('link', { name: /The Hobbit/ })).not.toBeInTheDocument();
+    expect(more.getByRole('link', { name: 'All books' })).toHaveAttribute('href', '/author/OL26320A');
+  });
+
+  it('hides "More by" when the author has no other books', async () => {
+    server.use(
+      http.get(`${OPEN_LIBRARY_ORIGIN}/search.json`, () =>
+        HttpResponse.json({
+          numFound: 1,
+          start: 0,
+          docs: [{ key: '/works/OL27482W', title: 'The Hobbit', author_key: ['OL26320A'] }],
+        }),
+      ),
+    );
+    renderApp('/book/OL27482W');
+
+    expect(await screen.findByRole('heading', { name: 'Editions' })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByTestId('book-grid-skeleton')).not.toBeInTheDocument();
+    });
+    expect(screen.queryByRole('heading', { name: /^More by/ })).not.toBeInTheDocument();
+  });
+
+  it('lists editions and loads more', async () => {
+    const offsets: (string | null)[] = [];
+    server.use(
+      http.get(`${OPEN_LIBRARY_ORIGIN}/works/:id/editions.json`, ({ request }) => {
+        const offset = new URL(request.url).searchParams.get('offset');
+        offsets.push(offset);
+        return HttpResponse.json(
+          offset === '0'
+            ? editions
+            : {
+                size: 482,
+                entries: [{ key: '/books/OL9M', title: 'The Hobbit', languages: [{ key: '/languages/eng' }] }],
+              },
+        );
+      }),
+    );
+    const user = userEvent.setup();
+    renderApp('/book/OL27482W');
+
+    const section = within(
+      (await screen.findByRole('heading', { name: 'Editions' })).closest('section') ?? document.body,
+    );
+    const edition = await section.findByRole('link', { name: 'Hobit ali Tja in spet nazaj' });
+    expect(edition).toHaveAttribute('href', 'https://openlibrary.org/books/OL62623719M');
+    expect(section.getByText('482 editions')).toBeInTheDocument();
+    expect(section.getByText('Mladinska knjiga · 2011 · 380 pages · paperback · Slovenian')).toBeInTheDocument();
+    expect(section.getByText('ISBN 9788611171982')).toBeInTheDocument();
+
+    await user.click(section.getByRole('button', { name: 'Load more' }));
+
+    expect(await section.findByText('English')).toBeInTheDocument();
+    expect(offsets).toEqual(['0', '10']);
+  });
+
+  it('shows edition language names in the UI language', async () => {
+    localStorage.setItem('read-books:locale', 'de');
+    renderApp('/book/OL27482W');
+
+    expect(
+      await screen.findByText(/Mladinska knjiga · 2011 · 380 Seiten · paperback · Slowenisch/),
+    ).toBeInTheDocument();
   });
 
   it('lists the Open Library page and only http(s) external links', async () => {
