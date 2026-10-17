@@ -49,15 +49,19 @@ scripts/         serve-pages.mjs (GitHub Pages simulator for e2e)
   - It validates every response with the schemas in `schemas.ts` and maps it to the types in `types.ts`, so components never see raw API shapes.
   - Route IDs are checked against `OL\d+W` / `OL\d+A` before any request. Invalid IDs throw `ApiError` with status 404 (check with `isNotFound`).
   - An author's books come from `search.json?author=…&sort=editions`, not `/authors/{id}/works.json`, which lists obscure items first and has no covers.
+  - `searchBooks(params)` sends `subject` as its own parameter and `sort` as-is. The year range goes inside `q` as `first_publish_year:[from TO to]`, because Open Library returns 500 when it's a separate parameter.
+  - `searchAuthors` uses `/search/authors.json` with `sort=work_count desc`; relevance order ranks lesser-known namesakes first. Author-search results have no photo IDs, so cards load photos with `authorPhotoUrlById` (`/a/olid/{id}?default=false`, which returns 404 when there's no photo, so `<Cover>` falls back).
 - **Merged records:** Open Library merges duplicate works and authors and leaves a `/type/redirect` stub at the old ID.
   - `fetchRecord` follows these, up to 3 hops and only to valid `/works/…` or `/authors/…` paths, and treats `/type/delete` as 404.
   - `getBook` and `getAuthor` return the canonical `id`. `useBook` and `useAuthor` seed the query cache under that ID, and the page then does `<Navigate replace>` to it. So always compare `data.id` with the route param.
   - `getBook` re-fetches ratings for the canonical work, because the stub's ratings are empty.
 - **Best-effort parts:** in `getBook`, a failed ratings or author-name request doesn't fail the book. An author's name may be undefined (`AuthorRef.name?`). The UI shows the translated `book.unknownAuthor`, so never put English fallback text in `src/api`.
 - **Server state:** TanStack Query, configured in `src/lib/queryClient.ts`: 5-minute `staleTime`, no refetch on window focus, no retry on 404. Search and author books use `useInfiniteQuery` with a 1-based `page` param, flattened through `uniqueBooks` because Open Library pages can overlap.
-- **Search page:** `?q=` decides what gets searched, and the text box is local state.
-  - Typing is debounced by 400 ms. Enter commits immediately. Queries shorter than 2 characters never run.
-  - The first search pushes a history entry; later edits replace it.
+- **Search page:** the URL decides what gets searched, and the text box is local state.
+  - `src/features/search/searchState.ts` parses and validates the URL (`q`, `type=authors`, `subject`, `sort`, `from`, `to`) and writes it back without defaults. The authors tab drops the book-only filters. Use `subjectSearchUrl` for subject links.
+  - Typing is debounced by 400 ms. Enter commits immediately. Queries shorter than 2 characters never run. A book search runs with a query or a subject alone; an author search needs a query.
+  - Typed searches: the first one pushes a history entry and later edits replace it. Tabs, filters and submit each push their own entry.
+  - Year inputs commit once 4 digits are typed, on clear, or on blur (for short years), so partial input never runs a search.
   - When the URL changes from outside (back/forward, a suggestion or subject link), the input resets to match. This uses a render-time state adjustment, not an effect.
 - **Routing:** `src/routes.tsx` exports `routes` and `basename`. `Layout` is the root, with `errorElement: RouteError`. The book and author pages are `lazy` routes, which keeps react-markdown out of the first load. Vite `base` is `/read-books/`, and the router basename comes from `import.meta.env.BASE_URL`.
 - **i18n:** react-intl with flat catalogs.

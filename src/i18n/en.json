@@ -94,5 +94,6 @@
   "search.authors.empty.body": "Nothing matched “{query}”. Check the spelling or try a different name.",
   "author.works": "{count, plural, one {# work} other {# works}}",
   "author.topWork": "Best known for {title}",
-  "author.lifespan": "{born} – {died}"
+  "author.lifespan": "{born} – {died}",
+  "search.year.label": "Published"
 }

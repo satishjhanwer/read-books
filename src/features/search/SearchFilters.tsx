@@ -58,6 +58,9 @@ export function SearchFilters({ state, onChange }: SearchFiltersProps) {
       </span>
 
       <span className="flex items-center gap-1">
+        <span aria-hidden className="mr-1 text-slate-600 dark:text-slate-400">
+          <FormattedMessage id="search.year.label" />
+        </span>
         <YearInput
           value={state.yearFrom}
           label={intl.formatMessage({ id: 'search.year.from' })}

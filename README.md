@@ -4,7 +4,9 @@ Search books and authors from the [Open Library](https://openlibrary.org) catalo
 
 **Live:** <https://satishjhanwer.dev/read-books/>
 
-- Search by title, author or keyword, with shareable `?q=` URLs and "Load more" pagination
+- Search books by title, author or keyword, or browse a subject. Sort by relevance, rating or date, filter by publication year, and share the URL.
+- Search authors by name
+- "Load more" pagination everywhere
 - Book pages with cover, description, ratings, subjects and links
 - Author pages with photo, bio, dates and a list of their books
 - A reading list ("Want to read", "Reading", "Read") saved on your device, with JSON export/import to move it between browsers
