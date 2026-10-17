@@ -29,7 +29,7 @@ export function BookCard({ book }: { book: BookSummary }) {
           <AuthorLinks authors={book.authors} max={2} />
         </p>
         {book.firstPublishYear !== undefined && (
-          <p className="text-xs text-slate-500 dark:text-slate-500">{book.firstPublishYear}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{book.firstPublishYear}</p>
         )}
         {book.rating && <RatingStars rating={book.rating} />}
       </div>

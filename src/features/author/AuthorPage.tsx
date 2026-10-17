@@ -79,7 +79,7 @@ export default function AuthorPage() {
             {author.bio ? (
               <Markdown>{author.bio}</Markdown>
             ) : (
-              <p className="text-slate-500 italic">
+              <p className="text-slate-500 italic dark:text-slate-400">
                 <FormattedMessage id="author.noBio" />
               </p>
             )}
@@ -120,7 +120,7 @@ function AuthorBooks({ name, query }: { name: string; query: ReturnType<typeof u
           <LoadError onRetry={() => void refetch()} />
         </div>
       ) : books.length === 0 ? (
-        <p className="text-slate-500 italic">
+        <p className="text-slate-500 italic dark:text-slate-400">
           <FormattedMessage id="author.noBooks" />
         </p>
       ) : (

@@ -4,3 +4,5 @@ node_modules
 .yarn
 yarn.lock
 .history
+playwright-report
+test-results

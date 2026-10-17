@@ -1,4 +1,5 @@
-import { z } from 'zod';
+// zod/mini: the tree-shakable functional API (the classic chained API added ~20% to the bundle).
+import * as z from 'zod/mini';
 
 // Raw Open Library response shapes. Only the fields the app reads are listed;
 // everything else is stripped. Most fields are optional in practice.
@@ -11,13 +12,13 @@ const linkSchema = z.object({ title: z.string(), url: z.string() });
 export const searchDocSchema = z.object({
   key: z.string(),
   title: z.string(),
-  author_name: z.array(z.string()).optional(),
-  author_key: z.array(z.string()).optional(),
-  cover_i: z.number().optional(),
-  first_publish_year: z.number().optional(),
-  edition_count: z.number().optional(),
-  ratings_average: z.number().optional(),
-  ratings_count: z.number().optional(),
+  author_name: z.optional(z.array(z.string())),
+  author_key: z.optional(z.array(z.string())),
+  cover_i: z.optional(z.number()),
+  first_publish_year: z.optional(z.number()),
+  edition_count: z.optional(z.number()),
+  ratings_average: z.optional(z.number()),
+  ratings_count: z.optional(z.number()),
 });
 
 export const searchResponseSchema = z.object({
@@ -29,36 +30,36 @@ export const searchResponseSchema = z.object({
 export const workSchema = z.object({
   key: z.string(),
   title: z.string(),
-  description: textSchema.optional(),
-  authors: z.array(z.object({ author: z.object({ key: z.string() }) })).optional(),
-  covers: z.array(z.number()).optional(),
-  first_publish_date: z.string().optional(),
-  subjects: z.array(z.string()).optional(),
-  links: z.array(linkSchema).optional(),
+  description: z.optional(textSchema),
+  authors: z.optional(z.array(z.object({ author: z.object({ key: z.string() }) }))),
+  covers: z.optional(z.array(z.number())),
+  first_publish_date: z.optional(z.string()),
+  subjects: z.optional(z.array(z.string())),
+  links: z.optional(z.array(linkSchema)),
 });
 
 export const ratingsSchema = z.object({
   summary: z.object({
-    average: z.number().nullish(),
+    average: z.nullish(z.number()),
     count: z.number(),
   }),
 });
 
 export const authorSchema = z.object({
   key: z.string(),
-  name: z.string().optional(),
-  personal_name: z.string().optional(),
-  bio: textSchema.optional(),
-  birth_date: z.string().optional(),
-  death_date: z.string().optional(),
-  photos: z.array(z.number()).optional(),
-  links: z.array(linkSchema).optional(),
+  name: z.optional(z.string()),
+  personal_name: z.optional(z.string()),
+  bio: z.optional(textSchema),
+  birth_date: z.optional(z.string()),
+  death_date: z.optional(z.string()),
+  photos: z.optional(z.array(z.number())),
+  links: z.optional(z.array(linkSchema)),
 });
 
 export type SearchDoc = z.infer<typeof searchDocSchema>;
 
 /** Record envelope used to detect merge redirects (`/type/redirect` + `location`) and deletions. */
 export const recordMetaSchema = z.object({
-  type: z.object({ key: z.string() }).optional(),
-  location: z.string().optional(),
+  type: z.optional(z.object({ key: z.string() })),
+  location: z.optional(z.string()),
 });

@@ -104,7 +104,7 @@ export default function SearchPage() {
         </form>
 
         {input.trim() !== '' && !isSearchable(input) && (
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
             <FormattedMessage id="search.tooShort" values={{ min: MIN_QUERY_LENGTH }} />
           </p>
         )}

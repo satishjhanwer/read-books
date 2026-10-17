@@ -25,7 +25,7 @@ export function LoadMore({ hasNextPage, isFetchingNextPage, isFetchNextPageError
           <FormattedMessage id={isFetchingNextPage ? 'search.loadingMore' : 'search.loadMore'} />
         </button>
       ) : (
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           <FormattedMessage id="search.end" />
         </p>
       )}

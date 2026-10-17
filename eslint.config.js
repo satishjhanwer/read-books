@@ -25,6 +25,12 @@ export default tseslint.config(
     },
   },
   {
+    // Playwright fixtures call `use()`, which the React hooks rule mistakes for a hook. No React here.
+    files: ['e2e/**', 'playwright.config.ts'],
+    languageOptions: { globals: globals.node },
+    rules: { 'react-hooks/rules-of-hooks': 'off' },
+  },
+  {
     files: ['**/*.js'],
     extends: [js.configs.recommended],
     languageOptions: { globals: globals.node },

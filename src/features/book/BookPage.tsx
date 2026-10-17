@@ -72,7 +72,7 @@ export default function BookPage() {
           {book.description ? (
             <Markdown>{book.description}</Markdown>
           ) : (
-            <p className="text-slate-500 italic">
+            <p className="text-slate-500 italic dark:text-slate-400">
               <FormattedMessage id="book.noDescription" />
             </p>
           )}

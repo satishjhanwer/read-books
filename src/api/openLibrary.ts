@@ -1,4 +1,4 @@
-import type { z } from 'zod';
+import type * as z from 'zod/mini';
 
 import { keyToId, normalizeText } from '../lib/text';
 import {
@@ -52,7 +52,7 @@ async function fetchRaw(path: string, signal?: AbortSignal): Promise<unknown> {
   return response.json();
 }
 
-function parse<T extends z.ZodType>(schema: T, data: unknown, path: string): z.infer<T> {
+function parse<T extends z.ZodMiniType>(schema: T, data: unknown, path: string): z.infer<T> {
   const result = schema.safeParse(data);
   if (!result.success) {
     throw new ApiError(`Unexpected Open Library response for ${path}`, 502);
@@ -60,7 +60,7 @@ function parse<T extends z.ZodType>(schema: T, data: unknown, path: string): z.i
   return result.data;
 }
 
-async function fetchJson<T extends z.ZodType>(path: string, schema: T, signal?: AbortSignal): Promise<z.infer<T>> {
+async function fetchJson<T extends z.ZodMiniType>(path: string, schema: T, signal?: AbortSignal): Promise<z.infer<T>> {
   return parse(schema, await fetchRaw(path, signal), path);
 }
 
@@ -71,7 +71,11 @@ const MAX_REDIRECTS = 3;
  * Fetches a work or author record (`/works/OL1W`), following the `/type/redirect` stubs Open Library
  * leaves behind when records are merged. Deleted records (`/type/delete`) are reported as not found.
  */
-async function fetchRecord<T extends z.ZodType>(path: string, schema: T, signal?: AbortSignal): Promise<z.infer<T>> {
+async function fetchRecord<T extends z.ZodMiniType>(
+  path: string,
+  schema: T,
+  signal?: AbortSignal,
+): Promise<z.infer<T>> {
   let current = path;
   for (let hop = 0; hop <= MAX_REDIRECTS; hop += 1) {
     const data = await fetchRaw(`${current}.json`, signal);

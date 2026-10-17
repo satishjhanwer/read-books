@@ -19,9 +19,11 @@ yarn typecheck       # tsc -b
 yarn test            # Vitest (jsdom, globals)
 yarn test src/App.test.tsx   # single file; add -t "<name>" for one test
 yarn format          # Prettier; CI runs format:check
+yarn test:e2e        # Playwright against the production build (vite preview :4173); first run: yarn playwright install chromium
+yarn test:e2e e2e/smoke.spec.ts -g "deep links" --project=desktop   # single e2e test
 ```
 
-CI (`.github/workflows/ci.yml`) runs format:check, lint, typecheck, test, and build. All of them must pass.
+CI (`.github/workflows/ci.yml`) has two jobs. `check` runs format:check, lint, typecheck, test, and build. `e2e` runs Playwright. Both must pass.
 
 ## Architecture notes
 
@@ -41,8 +43,12 @@ CI (`.github/workflows/ci.yml`) runs format:check, lint, typecheck, test, and bu
 
 - Vitest config lives inside `vite.config.ts`. Setup (`src/test/setup.ts`) starts an MSW server with `onUnhandledRequest: 'error'`, so any request without a handler fails the test. Default handlers in `src/test/handlers.ts` serve trimmed real fixtures (The Hobbit `OL27482W`, Tolkien `OL26320A`). Override a route per test with `server.use(...)`.
 - `renderApp(path)` in `src/test/render.tsx` renders the real route table in a memory router with the providers. Use it for page-level tests.
+- E2E (`e2e/`): the `page` fixture in `e2e/fixtures.ts` serves Open Library from the same JSON fixtures and returns solid-colour SVGs for covers, so runs never hit the network. `checkA11y()` runs axe (WCAG 2.1 AA) and fails on any violation, including dark-mode contrast. It runs on desktop and on mobile (Pixel 7). Vitest only picks up `src/**/*.test.{ts,tsx}`, so `*.spec.ts` files belong to Playwright.
 
 ## Conventions
+
+- Bundle: `vite.config.ts` splits `react`, `router`, and an explicit `vendor` list (the libraries the first page needs) into long-lived chunks. Keep lazy-only dependencies such as react-markdown out of `vendor`, or they load on first paint. Use `zod/mini` (functional API) rather than `zod`, because the classic API doesn't tree-shake.
+- Dark mode: secondary text uses `text-slate-500 dark:text-slate-400`. Plain `slate-500` fails contrast on the dark background, and the e2e axe check will catch it.
 
 - Prettier: single quotes, semicolons, 2 spaces, `printWidth` 120, trailing commas, `bracketSameLine`. LF line endings are enforced by `.gitattributes`.
 - TypeScript is strict with `noUncheckedIndexedAccess` and `verbatimModuleSyntax`, so use `import type` for type-only imports.
