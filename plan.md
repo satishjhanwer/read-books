@@ -3,7 +3,7 @@
 Future work for Read Books. v3 (Vite + React + TypeScript on the Open Library API) is live at
 <https://satishjhanwer.dev/read-books/>. It was merged in #44 and is deployed by `deploy.yml` on every push to `master`.
 The original rewrite plan is in git history, and the current architecture is in [CLAUDE.md](CLAUDE.md).
-Shipped since launch: the reading list (`/list`).
+Shipped since launch: the reading list (`/list`), and better search (subject filters, author search, sort and year filters).
 
 ## 1. Maintenance
 
@@ -15,12 +15,6 @@ Shipped since launch: the reading list (`/list`).
 ## 2. Feature backlog
 
 Roughly in priority order. Each item lists the Open Library endpoint and where it would live in the code.
-
-### Better search
-
-- **Subject links:** use `subject:"…"` queries or `/subjects/{slug}.json` instead of plain-text search.
-- **Author search:** add an "Authors" tab backed by `/search/authors.json?q=`.
-- **Sort and filters:** sort by `sort=new` / `sort=rating`, and filter by `first_publish_year`. Keep all of it in the URL, as `?q=` already is.
 
 ### Richer book page
 

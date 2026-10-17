@@ -6,17 +6,22 @@ import { authorPhotoUrl, coverUrl, type ImageSize } from '../api/openLibrary';
 interface CoverProps {
   /** Open Library cover or photo id; a placeholder is shown when missing or when the image fails. */
   imageId?: number;
+  /** A ready-made image URL instead of an id (e.g. author photos by author id). */
+  src?: string;
   alt: string;
   kind?: 'book' | 'author';
   size?: ImageSize;
   className?: string;
 }
 
-export function Cover({ imageId, alt, kind = 'book', size = 'M', className = '' }: CoverProps) {
-  const [failedId, setFailedId] = useState<number>();
+export function Cover({ imageId, src, alt, kind = 'book', size = 'M', className = '' }: CoverProps) {
+  const [failedUrl, setFailedUrl] = useState<string>();
   const frame = `overflow-hidden rounded-md bg-slate-200 dark:bg-slate-800 ${className}`;
+  const url =
+    src ??
+    (imageId === undefined ? undefined : kind === 'book' ? coverUrl(imageId, size) : authorPhotoUrl(imageId, size));
 
-  if (imageId === undefined || failedId === imageId) {
+  if (url === undefined || failedUrl === url) {
     const Icon = kind === 'book' ? BookOpen : UserRound;
     return (
       <div
@@ -30,12 +35,12 @@ export function Cover({ imageId, alt, kind = 'book', size = 'M', className = '' 
 
   return (
     <img
-      src={kind === 'book' ? coverUrl(imageId, size) : authorPhotoUrl(imageId, size)}
+      src={url}
       alt={alt}
       loading="lazy"
       decoding="async"
       onError={() => {
-        setFailedId(imageId);
+        setFailedUrl(url);
       }}
       className={`object-cover ${frame}`}
     />

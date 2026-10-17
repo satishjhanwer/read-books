@@ -1,0 +1,28 @@
+{
+  "numFound": 29,
+  "start": 0,
+  "docs": [
+    {
+      "birth_date": "3 January 1892",
+      "death_date": "2 September 1973",
+      "key": "OL26320A",
+      "name": "J.R.R. Tolkien",
+      "top_work": "The Hobbit",
+      "work_count": 346
+    },
+    {
+      "birth_date": "21 November 1924",
+      "death_date": "16 January 2020",
+      "key": "OL2623360A",
+      "name": "Christopher Tolkien",
+      "top_work": "The Silmarillion",
+      "work_count": 41
+    },
+    {
+      "key": "OL14431239A",
+      "name": "F. Tolkien",
+      "top_work": "Thug Life",
+      "work_count": 21
+    }
+  ]
+}

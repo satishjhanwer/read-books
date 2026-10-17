@@ -3,6 +3,7 @@ import { test as base, expect, type Page } from '@playwright/test';
 
 import author from '../src/test/fixtures/author.json' with { type: 'json' };
 import authorBooks from '../src/test/fixtures/author-books.json' with { type: 'json' };
+import authorSearch from '../src/test/fixtures/author-search.json' with { type: 'json' };
 import ratings from '../src/test/fixtures/ratings.json' with { type: 'json' };
 import search from '../src/test/fixtures/search.json' with { type: 'json' };
 import work from '../src/test/fixtures/work.json' with { type: 'json' };
@@ -17,6 +18,7 @@ async function mockOpenLibrary(page: Page) {
     const json = (body: unknown) => route.fulfill({ json: body, headers: { 'access-control-allow-origin': '*' } });
 
     if (path === '/search.json') return json(url.searchParams.has('author') ? authorBooks : search);
+    if (path === '/search/authors.json') return json(authorSearch);
     if (/^\/works\/OL\d+W\/ratings\.json$/.test(path)) return json(ratings);
     if (/^\/works\/OL\d+W\.json$/.test(path)) return json(work);
     if (/^\/authors\/OL\d+A\.json$/.test(path)) return json(author);
