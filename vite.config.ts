@@ -23,7 +23,7 @@ function spaFallback(): Plugin {
   };
 }
 
-// Served from https://satishjhanwer.github.io/read-books/ on GitHub Pages.
+// Served from https://satishjhanwer.dev/read-books/ on GitHub Pages.
 export default defineConfig({
   base: '/read-books/',
   plugins: [react(), tailwindcss(), spaFallback()],

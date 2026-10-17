@@ -7,7 +7,7 @@ in git history (`plan.md` before this rewrite) and the resulting architecture is
 
 - [ ] Push `revamp/v3` and open a PR into `master`. This is the first real run of the CI workflow and of the shared setup action, so check that both the `check` and `e2e` jobs pass.
 - [ ] Repo Settings → Pages → Source: **GitHub Actions**. Pages needs a public repo on a free plan.
-- [ ] Merge, then confirm that `deploy.yml` publishes to <https://satishjhanwer.github.io/read-books/>. Test a deep link, such as `/read-books/book/OL27482W`, on the live site.
+- [ ] Merge, then confirm that `deploy.yml` publishes to <https://satishjhanwer.dev/read-books/>. Test a deep link, such as `/read-books/book/OL27482W`, on the live site.
 - [ ] Update the repo's About section (description and website URL). The old Heroku link is dead.
 
 ## 2. Maintenance

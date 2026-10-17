@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Read Books v3 is a single-page app for searching books and authors in the [Open Library](https://openlibrary.org) catalog. It's built with Vite, React 19, and TypeScript, deployed to GitHub Pages at <https://satishjhanwer.github.io/read-books/>. There is no backend: the browser calls Open Library directly. v3 is a rewrite of a react-boilerplate/Goodreads app that now exists only in git history. [plan.md](plan.md) is the roadmap: the go-live checklist, maintenance tasks, a prioritised feature backlog, and known limitations. Check it before starting new work, and tick off or remove items as they ship.
+Read Books v3 is a single-page app for searching books and authors in the [Open Library](https://openlibrary.org) catalog. It's built with Vite, React 19, and TypeScript, deployed to GitHub Pages at <https://satishjhanwer.dev/read-books/>. There is no backend: the browser calls Open Library directly. v3 is a rewrite of a react-boilerplate/Goodreads app that now exists only in git history. [plan.md](plan.md) is the roadmap: the go-live checklist, maintenance tasks, a prioritised feature backlog, and known limitations. Check it before starting new work, and tick off or remove items as they ship.
 
 ## Commands
 

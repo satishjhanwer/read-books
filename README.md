@@ -2,7 +2,7 @@
 
 Search books and authors from the [Open Library](https://openlibrary.org) catalog.
 
-**Live:** <https://satishjhanwer.github.io/read-books/>
+**Live:** <https://satishjhanwer.dev/read-books/>
 
 - Search by title, author or keyword, with shareable `?q=` URLs and "Load more" pagination
 - Book pages with cover, description, ratings, subjects and links
