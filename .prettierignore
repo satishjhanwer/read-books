@@ -1,7 +1,6 @@
-build/
-node_modules/
-internals/generators/
-internals/scripts/
-package-lock.json
+dist
+coverage
+node_modules
+.yarn
 yarn.lock
-package.json
+.history
