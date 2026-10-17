@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Status
 
-The project is being rebuilt from an old react-boilerplate/Goodreads app into a Vite + React + TypeScript SPA backed by the Open Library API, hosted on GitHub Pages. [plan.md](plan.md) holds the full plan, target stack, folder structure, and phase list. Work happens on the `revamp/v3` branch, one commit per phase. The old app is only in git history (before the `revamp/v3` branch). README.md is still the old one and gets rewritten in the final phase.
+v3 is a rewrite of an old react-boilerplate/Goodreads app as a Vite + React + TypeScript SPA backed by the Open Library API, deployed to GitHub Pages (<https://satishjhanwer.github.io/read-books/>). [plan.md](plan.md) records the rewrite plan, decisions, and the v1.1 ideas (reading list, Google Books fallback, PWA). The old app is only in git history.
 
 ## Commands
 
@@ -19,7 +19,7 @@ yarn typecheck       # tsc -b
 yarn test            # Vitest (jsdom, globals)
 yarn test src/App.test.tsx   # single file; add -t "<name>" for one test
 yarn format          # Prettier; CI runs format:check
-yarn test:e2e        # Playwright against the production build (vite preview :4173); first run: yarn playwright install chromium
+yarn test:e2e        # Playwright against the production build, served like GitHub Pages on :4173; first run: yarn playwright install chromium
 yarn test:e2e e2e/smoke.spec.ts -g "deep links" --project=desktop   # single e2e test
 ```
 
@@ -44,6 +44,13 @@ CI (`.github/workflows/ci.yml`) has two jobs. `check` runs format:check, lint, t
 - Vitest config lives inside `vite.config.ts`. Setup (`src/test/setup.ts`) starts an MSW server with `onUnhandledRequest: 'error'`, so any request without a handler fails the test. Default handlers in `src/test/handlers.ts` serve trimmed real fixtures (The Hobbit `OL27482W`, Tolkien `OL26320A`). Override a route per test with `server.use(...)`.
 - `renderApp(path)` in `src/test/render.tsx` renders the real route table in a memory router with the providers. Use it for page-level tests.
 - E2E (`e2e/`): the `page` fixture in `e2e/fixtures.ts` serves Open Library from the same JSON fixtures and returns solid-colour SVGs for covers, so runs never hit the network. `checkA11y()` runs axe (WCAG 2.1 AA) and fails on any violation, including dark-mode contrast. It runs on desktop and on mobile (Pixel 7). Vitest only picks up `src/**/*.test.{ts,tsx}`, so `*.spec.ts` files belong to Playwright.
+
+## Deployment
+
+- `.github/workflows/deploy.yml` runs on push to `master`: lint, typecheck, test, build, then deploy `dist/` with `actions/deploy-pages`. Repo Settings → Pages → Source must be "GitHub Actions".
+- The `spaFallback` plugin in `vite.config.ts` copies `dist/index.html` to `dist/404.html`, because Pages has no SPA routing. Deep links get HTTP 404 with the app shell, and the router renders the page.
+- `scripts/serve-pages.mjs` (`yarn serve:pages`) mimics Pages: no fallback, `404.html` for unknown paths. Playwright runs against it, so e2e tests catch deep-link regressions that `vite preview` would hide.
+- CI setup lives in the composite action `.github/actions/setup`. Node 25+ doesn't bundle Corepack, so it installs Corepack globally before `corepack enable`.
 
 ## Conventions
 

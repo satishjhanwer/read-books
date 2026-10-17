@@ -1,16 +1,84 @@
-# Live URL: `https://read-books-app.herokuapp.com/`
+# Read Books
 
-## Quick start
+Search books and authors from the [Open Library](https://openlibrary.org) catalog.
 
-1. Make sure that you have Node v8 or above installed.
-2. Clone this repo using `git clone --depth=1 https://github.com/satishjhanwer/read-books.git`
-3. Move to the appropriate directory: `cd read-books`
-4. Run `npm install` in order to install dependencies
-5. Set `GOOD_READ_ENDPOINT` and `GOOD_READ_KEY` as env variables
-6. Run `npm start` to start the application in production mode at `http://localhost:3000`.
-7. Run `npm start:dev` to start the application in development mode.
-8. Run `npm run test` to execute various test case ( Some of the test case will fail as they are not written )
+**Live:** <https://satishjhanwer.github.io/read-books/>
 
-<div align="center">
-  <sub>This project was bootstrapped using <b>React-boilerplate</b> Created by <a href="https://github.com/react-boilerplate/react-boilerplate">Max Stoiber</a>.</sub>
-</div>
+- Search by title, author or keyword, with shareable `?q=` URLs and "Load more" pagination
+- Book pages with cover, description, ratings, subjects and links
+- Author pages with photo, bio, dates and a list of their books
+- English and German, with light and dark mode following your system setting
+- No backend and no API key: the browser talks to Open Library directly
+
+## Tech stack
+
+Vite · React 19 · TypeScript · React Router · TanStack Query · Zod · react-intl · Tailwind CSS ·
+Vitest + Testing Library + MSW · Playwright + axe · GitHub Actions · GitHub Pages
+
+## Getting started
+
+Requires Node 24+ (see `.nvmrc`) and Corepack, which provides the pinned Yarn version.
+
+```sh
+npm install --global corepack   # Node 25+ no longer bundles it
+corepack enable
+yarn install
+yarn dev                        # http://localhost:5173/read-books/
+```
+
+## Scripts
+
+| Command            | What it does                                                          |
+| ------------------ | --------------------------------------------------------------------- |
+| `yarn dev`         | Dev server with hot reload                                            |
+| `yarn build`       | Type-check and build to `dist/`                                       |
+| `yarn preview`     | Serve the production build                                            |
+| `yarn serve:pages` | Serve `dist/` the way GitHub Pages does (no SPA fallback)             |
+| `yarn test`        | Unit and component tests (Vitest)                                     |
+| `yarn test:e2e`    | End-to-end and accessibility tests (Playwright; builds the app first) |
+| `yarn lint`        | ESLint                                                                |
+| `yarn typecheck`   | TypeScript                                                            |
+| `yarn format`      | Prettier                                                              |
+
+First-time e2e setup: `yarn playwright install chromium`.
+
+## Project structure
+
+```text
+src/
+  api/          Open Library client: fetch, Zod validation, mapping to app types
+  components/   Shared UI (layout, book cards, covers, ratings, error states)
+  features/     search/, book/, author/ pages and their data hooks
+  i18n/         en/de message catalogs and locale provider
+  lib/          Query client and small helpers
+  test/         MSW handlers, fixtures and render helpers
+e2e/            Playwright tests (Open Library mocked from the same fixtures)
+scripts/        Local GitHub Pages simulator used by e2e
+```
+
+All Open Library access goes through `src/api/openLibrary.ts`. It validates every response, follows merged-record
+redirects, and returns typed app models, so components never handle raw API data.
+
+## Testing
+
+- **Unit/component:** Vitest in jsdom. Network calls are served by MSW from trimmed real Open Library responses in
+  `src/test/fixtures`, and any request without a handler fails the test.
+- **End-to-end:** Playwright runs on desktop and mobile Chrome against the production build, served like GitHub Pages.
+  Every page is checked with axe for WCAG 2.1 AA in light and dark mode.
+
+## Deployment
+
+Each push to `master` runs `.github/workflows/deploy.yml`: lint, typecheck, tests, build, then publish `dist/` to
+GitHub Pages. The build also writes `404.html` as a copy of `index.html`, so deep links like `/read-books/book/OL27482W`
+work even though Pages has no SPA routing.
+
+One-time setup: **Settings → Pages → Source: GitHub Actions**.
+
+## History
+
+v3 is a rewrite. v2 was a react-boilerplate app (Redux, redux-saga, webpack, Express) built on the Goodreads API, which
+was shut down in 2020. It's still in the git history.
+
+## License
+
+[MIT](LICENSE). Book data and covers come from [Open Library](https://openlibrary.org/developers/licensing).

@@ -1,6 +1,6 @@
 {
   "name": "read-books",
-  "version": "3.0.0-alpha.0",
+  "version": "3.0.0",
   "private": true,
   "description": "Search books and authors using the Open Library API",
   "repository": {
@@ -25,7 +25,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "serve:pages": "node scripts/serve-pages.mjs"
   },
   "packageManager": "yarn@4.18.1",
   "dependencies": {

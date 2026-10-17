@@ -28,7 +28,10 @@ test('search, open a book, then its author, and come back', async ({ page, check
 });
 
 test('deep links load directly', async ({ page }) => {
-  await page.goto('book/OL27482W');
+  // GitHub Pages answers unknown paths with 404.html (a copy of the app shell) and status 404;
+  // the router then renders the right page.
+  const response = await page.goto('book/OL27482W');
+  expect(response?.status()).toBe(404);
   await expect(page.getByRole('heading', { level: 1, name: 'The Hobbit' })).toBeVisible();
 
   await page.goto('author/OL26320A');

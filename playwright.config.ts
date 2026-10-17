@@ -17,9 +17,10 @@ export default defineConfig({
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
     { name: 'mobile', use: { ...devices['Pixel 7'] } },
   ],
-  // Tests run against the production build, as served on GitHub Pages.
+  // Tests run against the production build, served the way GitHub Pages serves it (see scripts/serve-pages.mjs).
   webServer: {
-    command: `yarn build && yarn preview --port ${String(PORT)} --strictPort`,
+    command: `yarn build && yarn serve:pages`,
+    env: { PORT: String(PORT) },
     url: `http://localhost:${String(PORT)}/read-books/`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

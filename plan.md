@@ -102,6 +102,8 @@ Possible v1.1 extras (not committed): a "My reading list" saved in localStorage,
 
 ## Implementation phases
 
+**Status: all seven phases are complete** on `revamp/v3`, one commit per phase. Changes from the original plan: React Router v8 instead of v7; author books come from `search.json?author=`; merged-record redirects are followed; `zod/mini` and vendor chunk splitting for bundle size; e2e tests run against a GitHub Pages simulator (`scripts/serve-pages.mjs`).
+
 Work on a branch (`revamp/v3`) and replace the app in place, so git history is kept.
 
 1. **Scaffold**: remove the old app, server, webpack, Babel, Jest and Travis files. Create a Vite React-TS app with Yarn 4, ESLint, Prettier, Tailwind, Vitest, and the GitHub Actions CI workflow. Lint, typecheck, test and build all pass on an empty shell.

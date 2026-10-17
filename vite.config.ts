@@ -1,11 +1,32 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import { copyFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import type { Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 
-// Served from https://<user>.github.io/read-books/ on GitHub Pages.
+/**
+ * GitHub Pages has no SPA fallback: a deep link such as /read-books/book/OL27482W would 404.
+ * Pages serves 404.html for unknown paths, so make it a copy of the app shell and let the router take over.
+ */
+function spaFallback(): Plugin {
+  let outDir = 'dist';
+  return {
+    name: 'gh-pages-spa-fallback',
+    apply: 'build',
+    configResolved(config) {
+      outDir = config.build.outDir;
+    },
+    async closeBundle() {
+      await copyFile(join(outDir, 'index.html'), join(outDir, '404.html'));
+    },
+  };
+}
+
+// Served from https://satishjhanwer.github.io/read-books/ on GitHub Pages.
 export default defineConfig({
   base: '/read-books/',
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), spaFallback()],
   build: {
     rolldownOptions: {
       output: {
