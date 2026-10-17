@@ -31,7 +31,9 @@ CI (`.github/workflows/ci.yml`) runs format:check, lint, typecheck, test, and bu
 - Routing: `src/routes.tsx` exports the route table (`Layout` with `errorElement: RouteError`; book and author pages are lazy chunks) and `basename`. `main.tsx` wraps `RouterProvider` in `LocaleProvider`.
 - i18n: react-intl with flat catalogs in `src/i18n/{en,de}.json`. Message IDs are type-checked against `en.json` through the `FormatjsIntl` augmentation in `messages.ts`, and `de.json` must have the same keys (checked by `satisfies` and a test). Add every new string to both files. The chosen locale is stored in localStorage (`read-books:locale`).
 - Page titles: render `<PageTitle title=… />`. React 19 hoists `<title>`, so react-helmet isn't needed.
-- Planned (see plan.md): TanStack Query for server state, with the search term kept in the URL (`?q=`).
+- Server state uses TanStack Query (`src/lib/queryClient.ts`: 5-minute `staleTime`, no retry on 404). Search uses `useInfiniteQuery`, with `page` as the page param.
+- Search page: `?q=` in the URL decides what gets searched. The input box is local state, debounced by 400 ms. The first search pushes a history entry and later edits replace it. When the URL changes from outside (back/forward, a suggestion link), the input resets to match. Queries shorter than 2 characters never run.
+- Author names are optional in the API types (`AuthorRef.name?`). Components fall back to the translated `book.unknownAuthor`, so never hardcode English fallbacks in `src/api`.
 
 ## Testing
 

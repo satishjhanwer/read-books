@@ -149,7 +149,7 @@ describe('getBook', () => {
     const book = await getBook('OL27482W');
 
     expect(book.rating).toBeUndefined();
-    expect(book.authors).toEqual([{ id: 'OL26320A', name: 'Unknown author' }]);
+    expect(book.authors).toEqual([{ id: 'OL26320A', name: undefined }]);
   });
 
   it('omits the rating when nobody has rated the work', async () => {

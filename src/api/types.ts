@@ -2,7 +2,8 @@
 
 export interface AuthorRef {
   id: string;
-  name: string;
+  /** Undefined when Open Library has no name; the UI shows a translated fallback. */
+  name?: string;
 }
 
 export interface Rating {
@@ -47,7 +48,7 @@ export interface BookDetails {
 
 export interface AuthorDetails {
   id: string;
-  name: string;
+  name?: string;
   bio?: string;
   birthDate?: string;
   deathDate?: string;

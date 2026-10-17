@@ -57,7 +57,7 @@ function toRating(average: number | null | undefined, count: number | undefined)
 
 function toBookSummary(doc: SearchDoc): BookSummary {
   const names = doc.author_name ?? [];
-  const authors = (doc.author_key ?? []).map((id, i) => ({ id, name: names[i] ?? 'Unknown author' }));
+  const authors = (doc.author_key ?? []).map((id, i) => ({ id, name: names[i] }));
   return {
     id: keyToId(doc.key),
     title: doc.title,
@@ -101,7 +101,7 @@ export async function getAuthor(authorId: string, signal?: AbortSignal): Promise
   const author = await fetchJson(`/authors/${authorId}.json`, authorSchema, signal);
   return {
     id: authorId,
-    name: author.name ?? author.personal_name ?? 'Unknown author',
+    name: author.name ?? author.personal_name,
     bio: normalizeText(author.bio),
     birthDate: author.birth_date,
     deathDate: author.death_date,
@@ -124,7 +124,7 @@ export async function getBook(workId: string, signal?: AbortSignal): Promise<Boo
     authorIds.map((id): Promise<AuthorRef> =>
       getAuthor(id, signal).then(
         ({ name }) => ({ id, name }),
-        () => ({ id, name: 'Unknown author' }),
+        () => ({ id, name: undefined }),
       ),
     ),
   );
