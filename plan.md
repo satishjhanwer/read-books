@@ -44,11 +44,11 @@ Open Library quirks the code must handle:
 | Build/dev       | webpack 5 + Babel + Express HMR                             | **Vite**                                                                                                  |
 | Language        | JavaScript + PropTypes                                      | **TypeScript** (strict)                                                                                   |
 | UI              | React 19, reactstrap, Bootstrap 4 CSS checked into the repo | React 19, **Tailwind CSS v4**, icons from **lucide-react**                                                |
-| Routing         | react-router-dom v6 + redux-first-history                   | **React Router v7** (library/SPA mode)                                                                    |
+| Routing         | react-router-dom v6 + redux-first-history                   | **React Router v8** (data router, SPA mode)                                                               |
 | Server state    | redux + redux-saga + reselect + redux-persist               | **TanStack Query** (caching, loading and error states)                                                    |
 | Client state    | redux                                                       | Search term kept in the URL (`?q=`); `localStorage` only for small preferences                            |
 | API validation  | none                                                        | **Zod** schemas for API responses                                                                         |
-| i18n            | react-intl (en, de)                                         | Keep **react-intl**, move existing en/de strings across                                                   |
+| i18n            | react-intl (en, de)                                         | Keep **react-intl**; fresh en/de catalogs (the old ones were empty placeholders)                          |
 | Testing         | Jest + snapshots                                            | **Vitest** + Testing Library + **MSW** for mocking the API; **Playwright** for one or two smoke e2e tests |
 | Lint/format     | ESLint 9 (FlatCompat) + Prettier                            | ESLint 9 flat config with typescript-eslint + Prettier (keep the current `.prettierrc` settings)          |
 | Package manager | Yarn 1                                                      | **Yarn 4** (via Corepack, `nodeLinker: node-modules`)                                                     |
@@ -105,7 +105,7 @@ Work on a branch (`revamp/v3`) and replace the app in place, so git history is k
 
 1. **Scaffold**: remove the old app, server, webpack, Babel, Jest and Travis files. Create a Vite React-TS app with Yarn 4, ESLint, Prettier, Tailwind, Vitest, and the GitHub Actions CI workflow. Lint, typecheck, test and build all pass on an empty shell.
 2. **API layer**: `openLibrary.ts` with Zod schemas, normalizers and unit tests against recorded fixtures (MSW).
-3. **Layout & routing**: header, layout, routes, 404 page, i18n provider with the migrated en/de messages.
+3. **Layout & routing**: header, layout, routes, 404 page, i18n provider with new en/de message catalogs and type-checked message ids.
 4. **Search**: search page with URL state, TanStack Query, pagination, and loading, empty and error states, plus tests.
 5. **Book & author pages**: details pages with tests.
 6. **Polish**: accessibility check, responsive layout, dark mode, cover image fallbacks, Playwright smoke test.

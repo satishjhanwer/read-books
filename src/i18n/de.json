@@ -1,4 +1,16 @@
 {
-  "app.components.NotFoundPage.header": "",
-  "app.containers.Home.header": ""
+  "app.name": "Read Books",
+  "layout.skipToContent": "Zum Inhalt springen",
+  "layout.footer": "Buchdaten von <link>Open Library</link>",
+  "nav.search": "Suche",
+  "language.label": "Sprache",
+  "search.title": "Bücher suchen",
+  "book.title": "Buch",
+  "author.title": "Autor",
+  "notFound.title": "Seite nicht gefunden",
+  "notFound.body": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
+  "notFound.home": "Zurück zur Suche",
+  "error.title": "Etwas ist schiefgelaufen",
+  "error.body": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut.",
+  "error.reload": "Seite neu laden"
 }

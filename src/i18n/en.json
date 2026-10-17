@@ -1,4 +1,16 @@
 {
-  "app.components.NotFoundPage.header": "This is NotFoundPage component!",
-  "app.containers.Home.header": "This is Home container !"
+  "app.name": "Read Books",
+  "layout.skipToContent": "Skip to content",
+  "layout.footer": "Book data from <link>Open Library</link>",
+  "nav.search": "Search",
+  "language.label": "Language",
+  "search.title": "Search books",
+  "book.title": "Book",
+  "author.title": "Author",
+  "notFound.title": "Page not found",
+  "notFound.body": "The page you're looking for doesn't exist or has moved.",
+  "notFound.home": "Back to search",
+  "error.title": "Something went wrong",
+  "error.body": "An unexpected error occurred. Please try again.",
+  "error.reload": "Reload page"
 }

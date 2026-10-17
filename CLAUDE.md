@@ -27,12 +27,20 @@ CI (`.github/workflows/ci.yml`) runs format:check, lint, typecheck, test, and bu
 
 - Vite `base` is `/read-books/` (GitHub Pages project site). Router basename and asset URLs must respect it.
 - The app calls Open Library straight from the browser. There is no backend.
-- Planned layering (see plan.md): `src/api` holds fetch wrappers, Zod schemas, and normalizers that turn Open Library responses into app-level types. Components never see raw API shapes. TanStack Query handles server state, and the search term lives in the URL.
-- `src/i18n/{en,de}.json` are the old react-intl message files, kept to migrate in phase 3.
-- Vitest config lives inside `vite.config.ts`. Test setup is in `src/test/setup.ts`.
+- `src/api/openLibrary.ts` is the only code that talks to Open Library. It validates responses with the Zod schemas in `schemas.ts` and maps them to the app types in `types.ts`, so components never see raw API shapes. IDs are checked against `OL\d+W` / `OL\d+A` before any request; invalid IDs throw `ApiError` 404 (`isNotFound`). Author books come from `search.json?author=…&sort=editions`, not `/authors/{id}/works.json`.
+- Routing: `src/routes.tsx` exports the route table (`Layout` with `errorElement: RouteError`; book and author pages are lazy chunks) and `basename`. `main.tsx` wraps `RouterProvider` in `LocaleProvider`.
+- i18n: react-intl with flat catalogs in `src/i18n/{en,de}.json`. Message IDs are type-checked against `en.json` through the `FormatjsIntl` augmentation in `messages.ts`, and `de.json` must have the same keys (checked by `satisfies` and a test). Add every new string to both files. The chosen locale is stored in localStorage (`read-books:locale`).
+- Page titles: render `<PageTitle title=… />`. React 19 hoists `<title>`, so react-helmet isn't needed.
+- Planned (see plan.md): TanStack Query for server state, with the search term kept in the URL (`?q=`).
+
+## Testing
+
+- Vitest config lives inside `vite.config.ts`. Setup (`src/test/setup.ts`) starts an MSW server with `onUnhandledRequest: 'error'`, so any request without a handler fails the test. Default handlers in `src/test/handlers.ts` serve trimmed real fixtures (The Hobbit `OL27482W`, Tolkien `OL26320A`). Override a route per test with `server.use(...)`.
+- `renderApp(path)` in `src/test/render.tsx` renders the real route table in a memory router with the providers. Use it for page-level tests.
 
 ## Conventions
 
 - Prettier: single quotes, semicolons, 2 spaces, `printWidth` 120, trailing commas, `bracketSameLine`. LF line endings are enforced by `.gitattributes`.
 - TypeScript is strict with `noUncheckedIndexedAccess` and `verbatimModuleSyntax`, so use `import type` for type-only imports.
 - TypeScript is pinned to `~6.0` because typescript-eslint doesn't support TS 7 yet.
+- Yarn quarantines very recent package releases (error `YN0016`). Use a looser range (for example `^1`) so it resolves to an older version, rather than disabling the check.
