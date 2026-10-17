@@ -1,14 +1,23 @@
+import type { ReactNode } from 'react';
+
 import type { BookSummary } from '../api/types';
 import { BookCard } from './BookCard';
 
 const gridClass = 'grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6';
 
-export function BookGrid({ books }: { books: BookSummary[] }) {
+export function BookGrid({
+  books,
+  renderFooter,
+}: {
+  books: BookSummary[];
+  /** Extra controls under each card, e.g. the shelf picker on the reading list page. */
+  renderFooter?: (book: BookSummary) => ReactNode;
+}) {
   return (
     <ul className={gridClass}>
       {books.map((book) => (
         <li key={book.id}>
-          <BookCard book={book} />
+          <BookCard book={book} footer={renderFooter?.(book)} />
         </li>
       ))}
     </ul>

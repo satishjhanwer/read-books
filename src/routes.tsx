@@ -21,6 +21,10 @@ export const routes: RouteObject[] = [
         path: 'author/:authorId',
         lazy: async () => ({ Component: (await import('./features/author/AuthorPage')).default }),
       },
+      {
+        path: 'list',
+        lazy: async () => ({ Component: (await import('./features/reading-list/ReadingListPage')).default }),
+      },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

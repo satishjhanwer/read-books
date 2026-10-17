@@ -11,6 +11,8 @@ import { Markdown } from '../../components/Markdown';
 import NotFoundPage from '../../components/NotFoundPage';
 import { PageTitle } from '../../components/PageTitle';
 import { RatingStars } from '../../components/RatingStars';
+import { ShelfSelect } from '../reading-list/ShelfSelect';
+import { toBookSummary } from '../reading-list/useReadingList';
 import { useBook } from './useBook';
 
 const MAX_SUBJECTS = 15;
@@ -66,6 +68,10 @@ export default function BookPage() {
               <FormattedMessage id="book.firstPublished" values={{ date: book.firstPublishDate }} />
             </span>
           )}
+        </div>
+
+        <div className="mt-5">
+          <ShelfSelect book={toBookSummary(book)} showLabel />
         </div>
 
         <section className="mt-8 max-w-prose">

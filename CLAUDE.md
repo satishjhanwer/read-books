@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Read Books v3 is a single-page app for searching books and authors in the [Open Library](https://openlibrary.org) catalog. It's built with Vite, React 19, and TypeScript, deployed to GitHub Pages at <https://satishjhanwer.dev/read-books/>. There is no backend: the browser calls Open Library directly. v3 is a rewrite of a react-boilerplate/Goodreads app that now exists only in git history. [plan.md](plan.md) is the roadmap: the go-live checklist, maintenance tasks, a prioritised feature backlog, and known limitations. Check it before starting new work, and tick off or remove items as they ship.
+Read Books v3 is a single-page app for searching books and authors in the [Open Library](https://openlibrary.org) catalog. It's built with Vite, React 19, and TypeScript, deployed to GitHub Pages at <https://satishjhanwer.dev/read-books/>. There is no backend: the browser calls Open Library directly. v3 is a rewrite of a react-boilerplate/Goodreads app that now exists only in git history. [plan.md](plan.md) is the roadmap: maintenance tasks, a prioritised feature backlog, and known limitations. Check it before starting new work, and tick off or remove items as they ship.
 
 ## Commands
 
@@ -31,7 +31,8 @@ CI (`.github/workflows/ci.yml`) has two jobs that must both pass: `check` (forma
 
 ```text
 src/api/         Open Library client (openLibrary.ts), Zod schemas, app-level types
-src/features/    search/, book/, author/: one page component plus its TanStack Query hooks each
+src/features/    search/, book/, author/: one page component plus its TanStack Query hooks each;
+                 reading-list/: localStorage store, hooks, SaveButton, ShelfSelect, /list page
 src/components/  shared UI: Layout, BookCard/BookGrid, Cover, RatingStars, Markdown, LoadMore, error/404 pages
 src/i18n/        en.json / de.json catalogs, LocaleProvider, typed message ids
 src/lib/         queryClient, text helpers, uniqueBooks
@@ -65,6 +66,11 @@ scripts/         serve-pages.mjs (GitHub Pages simulator for e2e)
 - **Untrusted text:** descriptions, bios, and links are user-edited on Open Library.
   - Render text through `components/Markdown.tsx` (react-markdown: no raw HTML, no images, safe URLs). Never use `dangerouslySetInnerHTML`.
   - `ExternalLinks` shows only `http(s)` URLs.
+- **Reading list:** `src/features/reading-list/store.ts` is a module-level external store read through `useSyncExternalStore` (`useReadingList` / `useShelf`).
+  - It persists to localStorage under `read-books:list:v1` as an array of `{ book: BookSummary, shelf, addedAt, updatedAt }`, and listens for the `storage` event so other tabs stay in sync.
+  - Stored data and imported files are validated with `zod/mini`, and invalid entries are dropped. Import merges, keeping whichever copy has the newer `updatedAt`.
+  - Change the stored shape only by bumping the key (`:v2`) and migrating from `:v1`.
+  - The book page converts `BookDetails` with `toBookSummary`, so the list stores the same shape as search results. `BookCard` always shows the `SaveButton` bookmark, and `BookGrid`'s `renderFooter` adds per-card controls such as `ShelfSelect` on `/list`.
 - **Page titles:** render `<PageTitle title=… />`. React 19 hoists `<title>` into the head.
 
 ## Testing
@@ -73,6 +79,7 @@ scripts/         serve-pages.mjs (GitHub Pages simulator for e2e)
   - `src/test/setup.ts` starts MSW with `onUnhandledRequest: 'error'`, so a request without a handler fails the test.
   - Default handlers serve trimmed real fixtures: The Hobbit `OL27482W` and Tolkien `OL26320A`, for any ID. Override a route per test with `server.use(...)`.
   - The setup also stubs `window.scrollTo` and raises the async timeout to 3 s, because lazy route chunks are slow to transform on a cold run.
+  - After each test, the setup clears localStorage and calls the reading-list store's `resetForTests()`, because the store caches its snapshot at module level. Seed a list with `setShelf(...)` before rendering.
 - **Page tests:** `renderApp(path)` renders the real route table in a memory router, with the app's own query client (retries off).
 - **E2E:**
   - The `page` fixture in `e2e/fixtures.ts` serves Open Library from the same JSON fixtures and returns solid-colour SVGs for covers, so runs never hit the network.

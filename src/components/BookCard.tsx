@@ -1,24 +1,29 @@
+import type { ReactNode } from 'react';
 import { useIntl } from 'react-intl';
 import { Link } from 'react-router';
 
 import type { BookSummary } from '../api/types';
+import { SaveButton } from '../features/reading-list/SaveButton';
 import { AuthorLinks } from './AuthorLinks';
 import { Cover } from './Cover';
 import { RatingStars } from './RatingStars';
 
-export function BookCard({ book }: { book: BookSummary }) {
+export function BookCard({ book, footer }: { book: BookSummary; footer?: ReactNode }) {
   const intl = useIntl();
 
   return (
-    <article className="group flex flex-col gap-2">
-      {/* The title link below is the accessible name; this one just enlarges the click target. */}
-      <Link to={`/book/${book.id}`} tabIndex={-1} aria-hidden className="block rounded-md">
-        <Cover
-          imageId={book.coverId}
-          alt={intl.formatMessage({ id: 'cover.alt' }, { title: book.title })}
-          className="aspect-[2/3] w-full shadow-sm transition group-hover:shadow-md"
-        />
-      </Link>
+    <article className="group flex h-full flex-col gap-2">
+      <div className="relative">
+        {/* The title link below is the accessible name; this one just enlarges the click target. */}
+        <Link to={`/book/${book.id}`} tabIndex={-1} aria-hidden className="block rounded-md">
+          <Cover
+            imageId={book.coverId}
+            alt={intl.formatMessage({ id: 'cover.alt' }, { title: book.title })}
+            className="aspect-[2/3] w-full shadow-sm transition group-hover:shadow-md"
+          />
+        </Link>
+        <SaveButton book={book} className="absolute top-2 right-2" />
+      </div>
       <div className="min-w-0 space-y-1">
         <h3 className="line-clamp-2 leading-snug font-medium">
           <Link to={`/book/${book.id}`} className="hover:text-indigo-600 dark:hover:text-indigo-400">
@@ -33,6 +38,7 @@ export function BookCard({ book }: { book: BookSummary }) {
         )}
         {book.rating && <RatingStars rating={book.rating} />}
       </div>
+      {footer && <div className="mt-auto pt-1">{footer}</div>}
     </article>
   );
 }

@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom/vitest';
 import { configure } from '@testing-library/react';
 
+import { resetForTests as resetReadingList } from '../features/reading-list/store';
 import { server } from './server';
 
 // Lazy route chunks are transformed on first import, which can exceed the 1 s default on a cold run.
@@ -15,6 +16,7 @@ beforeAll(() => {
 afterEach(() => {
   server.resetHandlers();
   localStorage.clear();
+  resetReadingList();
   vi.restoreAllMocks();
 });
 afterAll(() => {

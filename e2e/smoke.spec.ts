@@ -57,11 +57,45 @@ test('the language choice survives a reload', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('lang', 'de');
 });
 
+test('save books to the reading list and manage them', async ({ page, checkA11y }) => {
+  await page.goto('?q=the+hobbit');
+  const firstCard = page.getByRole('article').first();
+  await firstCard.getByRole('button', { name: 'Save “The Hobbit” to your reading list' }).click();
+  await expect(page.getByRole('link', { name: /^My list/ })).toContainText('1');
+
+  await page.goto('book/OL27482W');
+  const shelf = page.getByRole('combobox', { name: 'Reading list' });
+  await expect(shelf).toHaveValue('want');
+  await shelf.selectOption('reading');
+
+  await page.getByRole('link', { name: /^My list/ }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'My reading list' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Reading 1' })).toBeVisible();
+  await checkA11y();
+
+  // The list survives a reload (localStorage).
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 3, name: 'The Hobbit' })).toBeVisible();
+
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export' }).click();
+  expect((await download).suggestedFilename()).toMatch(/^read-books-list-\d{4}-\d{2}-\d{2}\.json$/);
+});
+
 test.describe('dark mode', () => {
   test.use({ colorScheme: 'dark' });
 
   test('passes accessibility checks on every page', async ({ page, checkA11y }) => {
-    for (const path of ['?q=the+hobbit', 'book/OL27482W', 'author/OL26320A']) {
+    // One saved book, so saved bookmarks and the populated list page are checked too.
+    await page.addInitScript(() => {
+      const now = new Date().toISOString();
+      const book = { id: 'OL27482W', title: 'The Hobbit', authors: [{ id: 'OL26320A', name: 'J.R.R. Tolkien' }] };
+      localStorage.setItem(
+        'read-books:list:v1',
+        JSON.stringify([{ book, shelf: 'reading', addedAt: now, updatedAt: now }]),
+      );
+    });
+    for (const path of ['?q=the+hobbit', 'book/OL27482W', 'author/OL26320A', 'list']) {
       await page.goto(path);
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
       await expect(page.getByTestId(/skeleton/)).toHaveCount(0);
