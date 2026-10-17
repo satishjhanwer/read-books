@@ -5,8 +5,10 @@ import { Link, useSearchParams } from 'react-router';
 
 import { BookGrid, BookGridSkeleton } from '../../components/BookGrid';
 import { LoadError } from '../../components/LoadError';
+import { LoadMore } from '../../components/LoadMore';
 import { PageTitle } from '../../components/PageTitle';
 import { buttonClass } from '../../components/StatusPage';
+import { uniqueBooks } from '../../lib/books';
 import { MIN_QUERY_LENGTH, isSearchable, useBookSearch } from './useBookSearch';
 
 export const SEARCH_DEBOUNCE_MS = 400;
@@ -131,11 +133,7 @@ function SearchResults({ query }: { query: string }) {
   const { data, isPending, isError, refetch, hasNextPage, fetchNextPage, isFetchingNextPage, isFetchNextPageError } =
     useBookSearch(query);
 
-  // Open Library pages can overlap when the index shifts; keep the first occurrence of each work.
-  const books = useMemo(() => {
-    const seen = new Set<string>();
-    return (data?.pages ?? []).flatMap((page) => page.books).filter((book) => !seen.has(book.id) && seen.add(book.id));
-  }, [data]);
+  const books = useMemo(() => uniqueBooks(data?.pages), [data]);
 
   if (isPending) {
     return (
@@ -176,24 +174,12 @@ function SearchResults({ query }: { query: string }) {
         </span>
       </h2>
       <BookGrid books={books} />
-
-      <div className="mt-10 flex justify-center">
-        {isFetchNextPageError ? (
-          <LoadError onRetry={() => void fetchNextPage()} />
-        ) : hasNextPage ? (
-          <button
-            type="button"
-            onClick={() => void fetchNextPage()}
-            disabled={isFetchingNextPage}
-            className={`${buttonClass} disabled:opacity-60`}>
-            <FormattedMessage id={isFetchingNextPage ? 'search.loadingMore' : 'search.loadMore'} />
-          </button>
-        ) : (
-          <p className="text-sm text-slate-500">
-            <FormattedMessage id="search.end" />
-          </p>
-        )}
-      </div>
+      <LoadMore
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        isFetchNextPageError={isFetchNextPageError}
+        fetchNextPage={fetchNextPage}
+      />
     </section>
   );
 }

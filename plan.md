@@ -33,6 +33,7 @@ Open Library quirks the code must handle:
 - `description` and `bio` come back either as a string or as `{ type, value }`. Normalize both to a string.
 - Many fields are optional: no cover, no birth date, no ratings. The UI must handle missing data.
 - Text can contain Markdown or HTML. Render it as sanitized Markdown, never with `dangerouslySetInnerHTML` on raw input.
+- Merged works and authors return a `/type/redirect` record pointing to the canonical ID. Follow it and update the URL. Deleted records (`/type/delete`) count as not found.
 - Rate limits are generous but not unlimited. Debounce search and cache responses (TanStack Query handles caching).
 
 **Optional fallback: Google Books API** (`https://www.googleapis.com/books/v1/volumes?q=`). It works without a key at low volume and has better descriptions and ratings. Hide each provider behind a small `BookProvider` interface so the app can switch or combine them later. This is not part of v1.

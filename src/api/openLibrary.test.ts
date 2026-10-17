@@ -1,5 +1,8 @@
 import { http, HttpResponse } from 'msw';
 
+import author from '../test/fixtures/author.json';
+import ratings from '../test/fixtures/ratings.json';
+import work from '../test/fixtures/work.json';
 import { server } from '../test/server';
 import {
   ApiError,
@@ -174,6 +177,65 @@ describe('getBook', () => {
   it('rejects malformed ids without making a request', async () => {
     await expect(getBook('../authors/OL1A')).rejects.toSatisfy(isNotFound);
     await expect(getBook('OL1A')).rejects.toSatisfy(isNotFound);
+  });
+});
+
+describe('merged and deleted records', () => {
+  const redirect = (location: string) => HttpResponse.json({ key: 'x', type: { key: '/type/redirect' }, location });
+
+  it('follows work redirects and refetches ratings for the canonical work', async () => {
+    const ratingRequests: string[] = [];
+    server.use(
+      http.get(`${OPEN_LIBRARY_ORIGIN}/works/:id.json`, ({ params }) =>
+        params.id === 'OL1W' ? redirect('/works/OL27482W') : HttpResponse.json(work),
+      ),
+      http.get(`${OPEN_LIBRARY_ORIGIN}/works/:id/ratings.json`, ({ params }) => {
+        ratingRequests.push(String(params.id));
+        return HttpResponse.json(
+          params.id === 'OL27482W' ? ratings : { summary: { average: null, count: 0 }, counts: {} },
+        );
+      }),
+    );
+
+    const book = await getBook('OL1W');
+
+    expect(book.id).toBe('OL27482W');
+    expect(book.title).toBe('The Hobbit');
+    expect(book.openLibraryUrl).toBe('https://openlibrary.org/works/OL27482W');
+    expect(book.rating?.count).toBe(501);
+    expect(ratingRequests.sort()).toEqual(['OL1W', 'OL27482W']);
+  });
+
+  it('follows author redirects and reports the canonical id', async () => {
+    server.use(
+      http.get(`${OPEN_LIBRARY_ORIGIN}/authors/:id.json`, ({ params }) =>
+        params.id === 'OL9A' ? redirect('/authors/OL26320A') : HttpResponse.json(author),
+      ),
+    );
+
+    expect(await getAuthor('OL9A')).toMatchObject({ id: 'OL26320A', name: 'J.R.R. Tolkien' });
+  });
+
+  it('treats deleted records as not found', async () => {
+    server.use(
+      http.get(`${OPEN_LIBRARY_ORIGIN}/works/:id.json`, () =>
+        HttpResponse.json({ key: '/works/OL1W', type: { key: '/type/delete' } }),
+      ),
+    );
+
+    await expect(getBook('OL1W')).rejects.toSatisfy(isNotFound);
+  });
+
+  it('gives up on redirect loops', async () => {
+    server.use(http.get(`${OPEN_LIBRARY_ORIGIN}/works/:id.json`, () => redirect('/works/OL1W')));
+
+    await expect(getBook('OL1W')).rejects.toMatchObject({ status: 502 });
+  });
+
+  it('refuses redirects to unexpected locations', async () => {
+    server.use(http.get(`${OPEN_LIBRARY_ORIGIN}/works/:id.json`, () => redirect('/../../evil')));
+
+    await expect(getBook('OL1W')).rejects.toMatchObject({ status: 502 });
   });
 });
 

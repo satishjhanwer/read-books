@@ -56,3 +56,9 @@ export const authorSchema = z.object({
 });
 
 export type SearchDoc = z.infer<typeof searchDocSchema>;
+
+/** Record envelope used to detect merge redirects (`/type/redirect` + `location`) and deletions. */
+export const recordMetaSchema = z.object({
+  type: z.object({ key: z.string() }).optional(),
+  location: z.string().optional(),
+});

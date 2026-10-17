@@ -19,15 +19,15 @@ describe('app shell', () => {
 
   it('lazy-loads the book and author routes', async () => {
     renderApp('/book/OL27482W');
-    expect(await screen.findByRole('heading', { name: 'Book OL27482W' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'The Hobbit' })).toBeInTheDocument();
     await waitFor(() => {
-      expect(document.title).toBe('Book · Read Books');
+      expect(document.title).toBe('The Hobbit · Read Books');
     });
   });
 
   it('renders the author route', async () => {
     renderApp('/author/OL26320A');
-    expect(await screen.findByRole('heading', { name: 'Author OL26320A' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'J.R.R. Tolkien' })).toBeInTheDocument();
   });
 
   it('shows the 404 page for unknown paths', async () => {
