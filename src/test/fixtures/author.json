@@ -1,0 +1,24 @@
+{
+  "key": "/authors/OL26320A",
+  "name": "J.R.R. Tolkien",
+  "bio": "John Ronald Reuel Tolkien (1892-1973) was a major scholar of the English language, specialising in Old and Middle English. Twice Professor of Anglo-Saxon (Old English) at the University of Oxford, he also wrote a number of stories, including most famously The Hobbit (1937) and The Lord of the Rings (1954-1955), which are set in a pre-historic era in an invented version of the world which he called by the Middle English name of Middle-earth. This was peopled by Men (and women), Elves, Dwarves, Trolls, Orcs (or Goblins) and of course Hobbits. He has regularly been condemned by the Eng. Lit. establishment, with honourable exceptions, but loved by literally millions of readers worldwide.\r\n\r\nIn the 1960s he was taken up by many members of the nascent \"counter-culture\" largely because of his concern with environmental issues. In 1997 he came top of three British polls, organised respectively by Channel 4 / Waterstone's, the Folio Society, and SFX, the UK's leading science fiction media magazine, amongst discerning readers asked to vote for the greatest book of the 20th century. \r\n\r\n([Source][1])\r\n\r\n\r\n  [1]: http://www.tolkiensociety.org/tolkien/biography.html",
+  "birth_date": "3 January 1892",
+  "death_date": "2 September 1973",
+  "photos": [6155606, 6433524],
+  "links": [
+    {
+      "title": "The Tolkien Society",
+      "url": "http://www.tolkiensociety.org/index.html",
+      "type": {
+        "key": "/type/link"
+      }
+    },
+    {
+      "title": "The Official Website of the JRR Tolkien Estate",
+      "url": "http://www.tolkienestate.com/",
+      "type": {
+        "key": "/type/link"
+      }
+    }
+  ]
+}

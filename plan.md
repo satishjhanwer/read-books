@@ -25,8 +25,8 @@ Out of scope for v1: user accounts, a server-side database, SSR/SEO.
 | Book (work) details | `GET https://openlibrary.org/works/{OLxxxW}.json`                                                                                                                          |
 | Book ratings        | `GET https://openlibrary.org/works/{OLxxxW}/ratings.json`                                                                                                                  |
 | Author details      | `GET https://openlibrary.org/authors/{OLxxxA}.json`                                                                                                                        |
-| Author's books      | `GET https://openlibrary.org/authors/{OLxxxA}/works.json?limit=<n>`                                                                                                        |
-| Covers              | `https://covers.openlibrary.org/b/id/{cover_i}-{S\|M\|L}.jpg`, author photos at `/a/olid/{OLxxxA}-M.jpg`                                                                   |
+| Author's books      | `GET https://openlibrary.org/search.json?author=<OLxxxA>&sort=editions` (the `/authors/{id}/works.json` endpoint lists obscure items first and has no covers)              |
+| Covers              | `https://covers.openlibrary.org/b/id/{cover_i}-{S\|M\|L}.jpg`, author photos at `/a/id/{photo_id}-M.jpg`                                                                   |
 
 Open Library quirks the code must handle:
 

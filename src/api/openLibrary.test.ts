@@ -1,0 +1,221 @@
+import { http, HttpResponse } from 'msw';
+
+import { server } from '../test/server';
+import {
+  ApiError,
+  OPEN_LIBRARY_ORIGIN,
+  PAGE_SIZE,
+  authorPhotoUrl,
+  coverUrl,
+  getAuthor,
+  getAuthorBooks,
+  getBook,
+  isNotFound,
+  searchBooks,
+} from './openLibrary';
+
+const captureSearchParams = () => {
+  const captured: { params?: URLSearchParams } = {};
+  server.use(
+    http.get(`${OPEN_LIBRARY_ORIGIN}/search.json`, ({ request }) => {
+      captured.params = new URL(request.url).searchParams;
+      return HttpResponse.json({ numFound: 0, start: 0, docs: [] });
+    }),
+  );
+  return captured;
+};
+
+describe('searchBooks', () => {
+  it('maps search docs to book summaries', async () => {
+    const result = await searchBooks('the hobbit');
+
+    expect(result.total).toBe(461);
+    expect(result.page).toBe(1);
+    expect(result.hasMore).toBe(true);
+    expect(result.books[0]).toEqual({
+      id: 'OL27482W',
+      title: 'The Hobbit',
+      authors: [{ id: 'OL26320A', name: 'J.R.R. Tolkien' }],
+      coverId: 14627509,
+      firstPublishYear: 1937,
+      editionCount: 482,
+      rating: { average: 4.29, count: 500 },
+    });
+    expect(result.books[1]?.authors).toHaveLength(3);
+  });
+
+  it('sends the trimmed query, page, page size and field list', async () => {
+    const captured = captureSearchParams();
+
+    await searchBooks('  dune  ', 3);
+
+    expect(captured.params?.get('q')).toBe('dune');
+    expect(captured.params?.get('page')).toBe('3');
+    expect(captured.params?.get('limit')).toBe(String(PAGE_SIZE));
+    expect(captured.params?.get('fields')).toContain('cover_i');
+  });
+
+  it('handles docs with missing optional fields', async () => {
+    server.use(
+      http.get(`${OPEN_LIBRARY_ORIGIN}/search.json`, () =>
+        HttpResponse.json({ numFound: 1, start: 0, docs: [{ key: '/works/OL1W', title: 'Bare', cover_i: -1 }] }),
+      ),
+    );
+
+    const { books, hasMore } = await searchBooks('bare');
+
+    expect(books[0]).toEqual({ id: 'OL1W', title: 'Bare', authors: [] });
+    expect(hasMore).toBe(false);
+  });
+
+  it('passes the abort signal through to fetch', async () => {
+    const controller = new AbortController();
+    controller.abort();
+
+    await expect(searchBooks('x', 1, controller.signal)).rejects.toMatchObject({ name: 'AbortError' });
+  });
+
+  it('throws ApiError on HTTP errors', async () => {
+    server.use(http.get(`${OPEN_LIBRARY_ORIGIN}/search.json`, () => new HttpResponse(null, { status: 503 })));
+
+    await expect(searchBooks('x')).rejects.toMatchObject({ name: 'ApiError', status: 503 });
+  });
+
+  it('throws ApiError when the response does not match the schema', async () => {
+    server.use(http.get(`${OPEN_LIBRARY_ORIGIN}/search.json`, () => HttpResponse.json({ docs: 'nope' })));
+
+    await expect(searchBooks('x')).rejects.toMatchObject({ status: 502 });
+  });
+});
+
+describe('getAuthorBooks', () => {
+  it('searches by author sorted by edition count', async () => {
+    const captured = captureSearchParams();
+
+    await getAuthorBooks('OL26320A');
+
+    expect(captured.params?.get('author')).toBe('OL26320A');
+    expect(captured.params?.get('sort')).toBe('editions');
+    expect(captured.params?.has('q')).toBe(false);
+  });
+
+  it('returns the author fixture books', async () => {
+    const { books } = await getAuthorBooks('OL26320A');
+
+    expect(books.map((book) => book.title)).toEqual(['The Hobbit', 'The Fellowship of the Ring', 'The Two Towers']);
+  });
+});
+
+describe('getBook', () => {
+  it('combines work, ratings and author names', async () => {
+    const book = await getBook('OL27482W');
+
+    expect(book).toMatchObject({
+      id: 'OL27482W',
+      title: 'The Hobbit',
+      authors: [{ id: 'OL26320A', name: 'J.R.R. Tolkien' }],
+      coverId: 14627509,
+      firstPublishDate: 'January 1938',
+      openLibraryUrl: 'https://openlibrary.org/works/OL27482W',
+    });
+    expect(book.rating?.count).toBe(501);
+    expect(book.rating?.average).toBeCloseTo(4.29, 2);
+    expect(book.description).toMatch(/^The Hobbit is a tale of high adventure/);
+    expect(book.description).not.toContain('\r');
+    expect(book.subjects).toContain('Fantasy');
+    expect(book.links[0]?.url).toMatch(/^https?:\/\//);
+  });
+
+  it('accepts { type, value } descriptions', async () => {
+    server.use(
+      http.get(`${OPEN_LIBRARY_ORIGIN}/works/:id.json`, () =>
+        HttpResponse.json({ key: '/works/OL2W', title: 'T', description: { type: '/type/text', value: ' Hi ' } }),
+      ),
+    );
+
+    const book = await getBook('OL2W');
+
+    expect(book.description).toBe('Hi');
+    expect(book.authors).toEqual([]);
+    expect(book.subjects).toEqual([]);
+  });
+
+  it('still returns the book when ratings and author lookups fail', async () => {
+    server.use(
+      http.get(`${OPEN_LIBRARY_ORIGIN}/works/:id/ratings.json`, () => new HttpResponse(null, { status: 500 })),
+      http.get(`${OPEN_LIBRARY_ORIGIN}/authors/:id.json`, () => new HttpResponse(null, { status: 500 })),
+    );
+
+    const book = await getBook('OL27482W');
+
+    expect(book.rating).toBeUndefined();
+    expect(book.authors).toEqual([{ id: 'OL26320A', name: 'Unknown author' }]);
+  });
+
+  it('omits the rating when nobody has rated the work', async () => {
+    server.use(
+      http.get(`${OPEN_LIBRARY_ORIGIN}/works/:id/ratings.json`, () =>
+        HttpResponse.json({ summary: { average: null, count: 0 }, counts: {} }),
+      ),
+    );
+
+    expect((await getBook('OL27482W')).rating).toBeUndefined();
+  });
+
+  it('reports a missing work as not found', async () => {
+    server.use(http.get(`${OPEN_LIBRARY_ORIGIN}/works/:id.json`, () => new HttpResponse(null, { status: 404 })));
+
+    const error: unknown = await getBook('OL999W').catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(ApiError);
+    expect(isNotFound(error)).toBe(true);
+  });
+
+  it('rejects malformed ids without making a request', async () => {
+    await expect(getBook('../authors/OL1A')).rejects.toSatisfy(isNotFound);
+    await expect(getBook('OL1A')).rejects.toSatisfy(isNotFound);
+  });
+});
+
+describe('getAuthor', () => {
+  it('maps author details', async () => {
+    const author = await getAuthor('OL26320A');
+
+    expect(author).toMatchObject({
+      id: 'OL26320A',
+      name: 'J.R.R. Tolkien',
+      birthDate: '3 January 1892',
+      deathDate: '2 September 1973',
+      photoId: 6155606,
+      openLibraryUrl: 'https://openlibrary.org/authors/OL26320A',
+    });
+    expect(author.bio).toMatch(/^John Ronald Reuel Tolkien/);
+  });
+
+  it('falls back to personal_name and skips placeholder photo ids', async () => {
+    server.use(
+      http.get(`${OPEN_LIBRARY_ORIGIN}/authors/:id.json`, () =>
+        HttpResponse.json({ key: '/authors/OL5A', personal_name: 'Someone', photos: [-1, 42] }),
+      ),
+    );
+
+    const author = await getAuthor('OL5A');
+
+    expect(author.name).toBe('Someone');
+    expect(author.photoId).toBe(42);
+    expect(author.bio).toBeUndefined();
+    expect(author.links).toEqual([]);
+  });
+
+  it('rejects malformed ids', async () => {
+    await expect(getAuthor('OL1W')).rejects.toSatisfy(isNotFound);
+  });
+});
+
+describe('image urls', () => {
+  it('builds cover and author photo urls', () => {
+    expect(coverUrl(14627509)).toBe('https://covers.openlibrary.org/b/id/14627509-M.jpg');
+    expect(coverUrl(1, 'L')).toBe('https://covers.openlibrary.org/b/id/1-L.jpg');
+    expect(authorPhotoUrl(6155606, 'S')).toBe('https://covers.openlibrary.org/a/id/6155606-S.jpg');
+  });
+});
