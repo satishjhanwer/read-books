@@ -57,6 +57,34 @@ test('the language choice survives a reload', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('lang', 'de');
 });
 
+test('the theme switch overrides the system theme and survives a reload', async ({ page, checkA11y }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('');
+  const html = page.locator('html');
+  await expect(html).not.toHaveClass(/dark/);
+
+  await page.getByRole('button', { name: 'Theme: System (switch to Light)' }).click();
+  await page.getByRole('button', { name: 'Theme: Light (switch to Dark)' }).click();
+  await expect(html).toHaveClass(/dark/);
+  await checkA11y();
+
+  await page.reload();
+  await expect(html).toHaveClass(/dark/);
+  await expect(page.getByRole('button', { name: 'Theme: Dark (switch to System)' })).toBeVisible();
+});
+
+test('the book page shows ratings, more by the author and editions', async ({ page }) => {
+  await page.goto('book/OL27482W');
+
+  await expect(page.getByRole('heading', { name: 'Ratings' })).toBeVisible();
+  const more = page.getByRole('region', { name: 'More by J.R.R. Tolkien' });
+  await expect(more.getByRole('link', { name: /The Fellowship of the Ring/ })).toBeVisible();
+
+  const editions = page.getByRole('region', { name: 'Editions' });
+  await expect(editions.getByText('482 editions')).toBeVisible();
+  await expect(editions.getByText('Mladinska knjiga · 2011 · 380 pages · paperback · Slovenian')).toBeVisible();
+});
+
 test('save books to the reading list and manage them', async ({ page, checkA11y }) => {
   await page.goto('?q=the+hobbit');
   const firstCard = page.getByRole('article').first();

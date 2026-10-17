@@ -1,0 +1,66 @@
+{
+  "links": {
+    "self": "/works/OL27482W/editions.json",
+    "work": "/works/OL27482W",
+    "next": "/works/OL27482W/editions.json?offset=10"
+  },
+  "size": 482,
+  "entries": [
+    {
+      "key": "/books/OL62623719M",
+      "title": "Hobit ali Tja in spet nazaj",
+      "publishers": ["Mladinska knjiga"],
+      "publish_date": "2011",
+      "number_of_pages": 380,
+      "physical_format": "paperback",
+      "isbn_13": ["9788611171982"],
+      "languages": [
+        {
+          "key": "/languages/slv"
+        }
+      ],
+      "covers": [15261276]
+    },
+    {
+      "key": "/books/OL62190138M",
+      "title": "Гобіт, або туди і звідти",
+      "publishers": ["Астролябія"],
+      "publish_date": "2020",
+      "isbn_13": ["9786176642145"],
+      "languages": [
+        {
+          "key": "/languages/ukr"
+        }
+      ],
+      "covers": [15231842]
+    },
+    {
+      "key": "/books/OL59691274M",
+      "title": "De hobbit",
+      "publishers": ["Uitgeverij Meulenhoff"],
+      "publish_date": "2003",
+      "physical_format": "ebook",
+      "isbn_13": ["9789460923821"],
+      "languages": [
+        {
+          "key": "/languages/dut"
+        }
+      ],
+      "covers": [15108076]
+    },
+    {
+      "key": "/books/OL59690711M",
+      "title": "De Hobbit",
+      "publishers": ["Uitgeverij Het Spectrum"],
+      "publish_date": "1984",
+      "physical_format": "paperback",
+      "isbn_10": ["9027400431"],
+      "languages": [
+        {
+          "key": "/languages/dut"
+        }
+      ],
+      "covers": [15108065]
+    }
+  ]
+}

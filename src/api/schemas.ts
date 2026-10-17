@@ -43,6 +43,8 @@ export const ratingsSchema = z.object({
     average: z.nullish(z.number()),
     count: z.number(),
   }),
+  /** Star histogram keyed "1".."5". */
+  counts: z.optional(z.record(z.string(), z.number())),
 });
 
 export const authorSchema = z.object({
@@ -75,6 +77,25 @@ export const authorSearchResponseSchema = z.object({
       death_date: z.optional(z.string()),
       top_work: z.optional(z.string()),
       work_count: z.optional(z.number()),
+    }),
+  ),
+});
+
+export const editionsResponseSchema = z.object({
+  size: z.number(),
+  entries: z.array(
+    z.object({
+      key: z.string(),
+      title: z.optional(z.string()),
+      subtitle: z.optional(z.string()),
+      publishers: z.optional(z.array(z.string())),
+      publish_date: z.optional(z.string()),
+      number_of_pages: z.optional(z.number()),
+      physical_format: z.optional(z.string()),
+      isbn_13: z.optional(z.array(z.string())),
+      isbn_10: z.optional(z.array(z.string())),
+      languages: z.optional(z.array(z.object({ key: z.string() }))),
+      covers: z.optional(z.array(z.number())),
     }),
   ),
 });

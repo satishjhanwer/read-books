@@ -7,6 +7,7 @@ import work from '../test/fixtures/work.json';
 import { server } from '../test/server';
 import {
   ApiError,
+  EDITIONS_PAGE_SIZE,
   OPEN_LIBRARY_ORIGIN,
   PAGE_SIZE,
   authorPhotoUrl,
@@ -15,6 +16,7 @@ import {
   getAuthor,
   getAuthorBooks,
   getBook,
+  getEditions,
   isNotFound,
   searchAuthors,
   searchBooks,
@@ -202,6 +204,7 @@ describe('getBook', () => {
     });
     expect(book.rating?.count).toBe(501);
     expect(book.rating?.average).toBeCloseTo(4.29, 2);
+    expect(book.ratingCounts).toEqual([16, 18, 41, 155, 271]);
     expect(book.description).toMatch(/^The Hobbit is a tale of high adventure/);
     expect(book.description).not.toContain('\r');
     expect(book.subjects).toContain('Fantasy');
@@ -241,7 +244,19 @@ describe('getBook', () => {
       ),
     );
 
-    expect((await getBook('OL27482W')).rating).toBeUndefined();
+    const book = await getBook('OL27482W');
+    expect(book.rating).toBeUndefined();
+    expect(book.ratingCounts).toBeUndefined();
+  });
+
+  it('fills missing star counts with zero', async () => {
+    server.use(
+      http.get(`${OPEN_LIBRARY_ORIGIN}/works/:id/ratings.json`, () =>
+        HttpResponse.json({ summary: { average: 5, count: 2 }, counts: { '5': 2 } }),
+      ),
+    );
+
+    expect((await getBook('OL27482W')).ratingCounts).toEqual([0, 0, 0, 0, 2]);
   });
 
   it('reports a missing work as not found', async () => {
@@ -315,6 +330,57 @@ describe('merged and deleted records', () => {
     server.use(http.get(`${OPEN_LIBRARY_ORIGIN}/works/:id.json`, () => redirect('/../../evil')));
 
     await expect(getBook('OL1W')).rejects.toMatchObject({ status: 502 });
+  });
+});
+
+describe('getEditions', () => {
+  it('maps editions', async () => {
+    const page = await getEditions('OL27482W');
+
+    expect(page).toMatchObject({ total: 482, page: 1, hasMore: true });
+    expect(page.editions[0]).toEqual({
+      id: 'OL62623719M',
+      title: 'Hobit ali Tja in spet nazaj',
+      subtitle: undefined,
+      publishers: ['Mladinska knjiga'],
+      publishDate: '2011',
+      pages: 380,
+      format: 'paperback',
+      isbn: '9788611171982',
+      languages: ['slv'],
+      coverId: 15261276,
+      openLibraryUrl: 'https://openlibrary.org/books/OL62623719M',
+    });
+    // Falls back to ISBN-10 when there is no ISBN-13.
+    expect(page.editions[3]?.isbn).toBe('9027400431');
+  });
+
+  it('pages with limit and offset', async () => {
+    let params: URLSearchParams | undefined;
+    server.use(
+      http.get(`${OPEN_LIBRARY_ORIGIN}/works/:id/editions.json`, ({ request }) => {
+        params = new URL(request.url).searchParams;
+        return HttpResponse.json({ size: 21, entries: [{ key: '/books/OL1M' }] });
+      }),
+    );
+
+    const page = await getEditions('OL27482W', 3);
+
+    expect(params?.get('limit')).toBe(String(EDITIONS_PAGE_SIZE));
+    expect(params?.get('offset')).toBe(String(2 * EDITIONS_PAGE_SIZE));
+    expect(page.hasMore).toBe(false);
+    expect(page.editions[0]).toMatchObject({ id: 'OL1M', publishers: [], languages: [] });
+  });
+
+  it('drops malformed edition keys and rejects malformed work ids', async () => {
+    server.use(
+      http.get(`${OPEN_LIBRARY_ORIGIN}/works/:id/editions.json`, () =>
+        HttpResponse.json({ size: 2, entries: [{ key: '/books/OL1M' }, { key: '/books/../x' }] }),
+      ),
+    );
+
+    expect((await getEditions('OL27482W')).editions.map((edition) => edition.id)).toEqual(['OL1M']);
+    await expect(getEditions('OL1A')).rejects.toSatisfy(isNotFound);
   });
 });
 

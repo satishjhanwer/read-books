@@ -3,7 +3,9 @@
 Future work for Read Books. v3 (Vite + React + TypeScript on the Open Library API) is live at
 <https://satishjhanwer.dev/read-books/>. It was merged in #44 and is deployed by `deploy.yml` on every push to `master`.
 The original rewrite plan is in git history, and the current architecture is in [CLAUDE.md](CLAUDE.md).
-Shipped since launch: the reading list (`/list`), and better search (subject filters, author search, sort and year filters).
+Shipped since launch: the reading list (`/list`); better search (subject filters, author search, sort and year filters);
+a richer book page (ratings breakdown, editions, more by the author); PWA/offline support; a light/dark theme switch;
+and Spanish and French.
 
 ## 1. Maintenance
 
@@ -16,24 +18,21 @@ Shipped since launch: the reading list (`/list`), and better search (subject fil
 
 Roughly in priority order. Each item lists the Open Library endpoint and where it would live in the code.
 
-### Richer book page
-
-- **Ratings breakdown:** the `counts` field in `ratings.json` gives a 1–5 star histogram.
-- **Editions:** list them from `/works/{id}/editions.json` (ISBN, publisher, pages, language), with "Load more".
-- **More by this author:** reuse `getAuthorBooks` and exclude the current work.
-
 ### Google Books fallback
 
 - Use it for books Open Library describes poorly (missing description or cover): `https://www.googleapis.com/books/v1/volumes?q=isbn:…`. It works without a key at low volume.
 - Keep `src/api` as the boundary: add a provider module and merge its data in `getBook`, so components don't change.
 
-### PWA / offline
+### Offline polish
 
-- Add a web manifest and a service worker (for example `vite-plugin-pwa`). Cache the app shell and recently viewed covers and API responses, together with a persisted TanStack Query cache.
+- Show a "new version available" prompt instead of updating silently (`registerType: 'prompt'` plus `virtual:pwa-register/react`).
+- Offline, a page that was never cached shows a skeleton (the query is paused) or a load error (when the app started offline, since TanStack's `onlineManager` assumes "online"). Show a dedicated "not available offline" state instead.
 
 ### More languages
 
-- Add a locale by creating `src/i18n/<code>.json` and listing the code in `LOCALES` and `LOCALE_NAMES` in `messages.ts`. The type check and the key-parity test make sure the catalog is complete.
+- English, German, Spanish and French ship today. To add one, see the i18n notes in CLAUDE.md. Native-speaker review of the es/fr catalogs would help.
+- Load catalogs on demand (dynamic `import()`) once there are enough of them to matter for the first load.
+- Edition formats (`paperback`, `ebook`) come from Open Library in English. Translate the common ones.
 
 ## 3. Known limitations
 

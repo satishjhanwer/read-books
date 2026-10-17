@@ -5,6 +5,8 @@ import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router';
 
 import { useReadingList } from '../features/reading-list/useReadingList';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { OfflineBanner } from './OfflineBanner';
+import { ThemeSwitcher } from './ThemeSwitcher';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `rounded-md px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors ${
@@ -55,8 +57,10 @@ export function Layout({ children }: { children?: ReactNode }) {
               )}
             </NavLink>
           </nav>
+          <ThemeSwitcher />
           <LanguageSwitcher />
         </div>
+        <OfflineBanner />
       </header>
 
       <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">

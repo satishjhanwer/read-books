@@ -95,5 +95,18 @@
   "author.works": "{count, plural, one {# work} other {# works}}",
   "author.topWork": "Best known for {title}",
   "author.lifespan": "{born} – {died}",
-  "search.year.label": "Published"
+  "search.year.label": "Published",
+  "book.ratings": "Ratings",
+  "book.ratings.stars": "{stars, plural, one {# star} other {# stars}}",
+  "book.editions.title": "Editions",
+  "book.editions.empty": "No editions are listed for this book.",
+  "book.edition.pages": "{count, plural, one {# page} other {# pages}}",
+  "book.edition.isbn": "ISBN {isbn}",
+  "book.moreBy": "More by {name}",
+  "book.moreBy.all": "All books",
+  "theme.label": "Theme: {theme} (switch to {next})",
+  "theme.system": "System",
+  "theme.light": "Light",
+  "theme.dark": "Dark",
+  "offline.banner": "You’re offline. Pages you’ve visited recently still work; new searches will run when you’re back online."
 }

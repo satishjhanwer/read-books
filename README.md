@@ -7,15 +7,18 @@ Search books and authors from the [Open Library](https://openlibrary.org) catalo
 - Search books by title, author or keyword, or browse a subject. Sort by relevance, rating or date, filter by publication year, and share the URL.
 - Search authors by name
 - "Load more" pagination everywhere
-- Book pages with cover, description, ratings, subjects and links
+- Book pages with cover, description, a ratings breakdown, subjects, links, more books by the same author, and every
+  edition (publisher, date, pages, language, ISBN)
 - Author pages with photo, bio, dates and a list of their books
 - A reading list ("Want to read", "Reading", "Read") saved on your device, with JSON export/import to move it between browsers
-- English and German, with light and dark mode following your system setting
+- English, German, Spanish and French
+- Light and dark mode: follows your system setting, or pick one with the theme button
+- Installable as an app (PWA). Recently viewed pages and covers keep working offline
 - No backend and no API key: the browser talks to Open Library directly
 
 ## Tech stack
 
-Vite · React 19 · TypeScript · React Router · TanStack Query · Zod · react-intl · Tailwind CSS ·
+Vite · React 19 · TypeScript · React Router · TanStack Query · Zod · react-intl · Tailwind CSS · vite-plugin-pwa ·
 Vitest + Testing Library + MSW · Playwright + axe · GitHub Actions · GitHub Pages
 
 ## Getting started
@@ -52,8 +55,8 @@ src/
   api/          Open Library client: fetch, Zod validation, mapping to app types
   components/   Shared UI (layout, book cards, covers, ratings, error states)
   features/     search/, book/, author/ pages and their data hooks
-  i18n/         en/de message catalogs and locale provider
-  lib/          Query client and small helpers
+  i18n/         en/de/es/fr message catalogs and locale provider
+  lib/          Query client (and its localStorage persistence), theme store, small helpers
   test/         MSW handlers, fixtures and render helpers
 e2e/            Playwright tests (Open Library mocked from the same fixtures)
 scripts/        Local GitHub Pages simulator used by e2e

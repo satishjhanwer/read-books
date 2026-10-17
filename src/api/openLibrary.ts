@@ -4,6 +4,7 @@ import { keyToId, normalizeText } from '../lib/text';
 import {
   authorSchema,
   authorSearchResponseSchema,
+  editionsResponseSchema,
   ratingsSchema,
   recordMetaSchema,
   searchResponseSchema,
@@ -18,12 +19,15 @@ import type {
   BookDetails,
   BookPage,
   BookSummary,
+  Edition,
+  EditionPage,
   Rating,
 } from './types';
 
 export const OPEN_LIBRARY_ORIGIN = 'https://openlibrary.org';
 export const COVERS_ORIGIN = 'https://covers.openlibrary.org';
 export const PAGE_SIZE = 24;
+export const EDITIONS_PAGE_SIZE = 10;
 
 const SEARCH_FIELDS = [
   'key',
@@ -52,6 +56,7 @@ export interface BookSearchParams {
 }
 
 const WORK_ID = /^OL\d+W$/;
+const EDITION_ID = /^OL\d+M$/;
 const AUTHOR_ID = /^OL\d+A$/;
 
 export type ImageSize = 'S' | 'M' | 'L';
@@ -125,6 +130,14 @@ const positiveId = (ids: number[] | undefined): number | undefined => ids?.find(
 
 function toRating(average: number | null | undefined, count: number | undefined): Rating | undefined {
   return average != null && count ? { average, count } : undefined;
+}
+
+type RatingCounts = NonNullable<BookDetails['ratingCounts']>;
+
+function toRatingCounts(counts: Record<string, number> | undefined): RatingCounts | undefined {
+  if (!counts) return undefined;
+  const values = [1, 2, 3, 4, 5].map((star) => Math.max(0, counts[String(star)] ?? 0)) as RatingCounts;
+  return values.some((count) => count > 0) ? values : undefined;
 }
 
 function toBookSummary(doc: SearchDoc): BookSummary {
@@ -257,8 +270,41 @@ export async function getBook(workId: string, signal?: AbortSignal): Promise<Boo
     firstPublishDate: work.first_publish_date,
     coverId: positiveId(work.covers),
     rating: toRating(ratings?.summary.average, ratings?.summary.count),
+    ratingCounts: toRatingCounts(ratings?.counts),
     links: work.links ?? [],
     openLibraryUrl: `${OPEN_LIBRARY_ORIGIN}/works/${id}`,
+  };
+}
+
+/** A work's editions, newest records first. `page` is 1-based. */
+export async function getEditions(workId: string, page = 1, signal?: AbortSignal): Promise<EditionPage> {
+  assertId(workId, WORK_ID);
+  const offset = (page - 1) * EDITIONS_PAGE_SIZE;
+  const query = new URLSearchParams({ limit: String(EDITIONS_PAGE_SIZE), offset: String(offset) });
+  const path = `/works/${workId}/editions.json?${query.toString()}`;
+  const data = await fetchJson(path, editionsResponseSchema, signal);
+  return {
+    editions: data.entries
+      .map((entry): Edition => {
+        const id = keyToId(entry.key);
+        return {
+          id,
+          title: entry.title,
+          subtitle: entry.subtitle,
+          publishers: entry.publishers ?? [],
+          publishDate: entry.publish_date,
+          pages: entry.number_of_pages !== undefined && entry.number_of_pages > 0 ? entry.number_of_pages : undefined,
+          format: entry.physical_format,
+          isbn: entry.isbn_13?.[0] ?? entry.isbn_10?.[0],
+          languages: (entry.languages ?? []).map((language) => keyToId(language.key)),
+          coverId: positiveId(entry.covers),
+          openLibraryUrl: `${OPEN_LIBRARY_ORIGIN}/books/${id}`,
+        };
+      })
+      .filter((edition) => EDITION_ID.test(edition.id)),
+    total: data.size,
+    page,
+    hasMore: offset + data.entries.length < data.size,
   };
 }
 

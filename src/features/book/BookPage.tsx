@@ -14,6 +14,9 @@ import { RatingStars } from '../../components/RatingStars';
 import { ShelfSelect } from '../reading-list/ShelfSelect';
 import { toBookSummary } from '../reading-list/useReadingList';
 import { subjectSearchUrl } from '../search/searchState';
+import { Editions } from './Editions';
+import { MoreByAuthor } from './MoreByAuthor';
+import { RatingBreakdown } from './RatingBreakdown';
 import { useBook } from './useBook';
 
 const MAX_SUBJECTS = 15;
@@ -45,6 +48,7 @@ export default function BookPage() {
   if (book.id !== workId) return <Navigate to={`/book/${book.id}`} replace />;
 
   const subjects = book.subjects.slice(0, MAX_SUBJECTS);
+  const [firstAuthor] = book.authors;
 
   return (
     <article>
@@ -85,6 +89,8 @@ export default function BookPage() {
           )}
         </section>
 
+        {book.ratingCounts && <RatingBreakdown counts={book.ratingCounts} />}
+
         {subjects.length > 0 && (
           <section className="mt-8">
             <h2 className={sectionHeadingClass}>
@@ -106,6 +112,15 @@ export default function BookPage() {
 
         <ExternalLinks links={book.links} openLibraryUrl={book.openLibraryUrl} />
       </DetailLayout>
+
+      {firstAuthor && (
+        <MoreByAuthor
+          authorId={firstAuthor.id}
+          name={firstAuthor.name ?? intl.formatMessage({ id: 'book.unknownAuthor' })}
+          bookId={book.id}
+        />
+      )}
+      <Editions workId={book.id} bookTitle={book.title} />
     </article>
   );
 }
